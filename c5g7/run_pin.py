@@ -17,7 +17,7 @@ from pins_c5g7 import get_pins
 from material_c5g7 import get_materials
 from plot_utils import *
 #-----------------------------------------------------------------------------#
-# Input
+# Input 0.013535720
 #-----------------------------------------------------------------------------#
 inp = InputDB.Create()
 inp.put_str("equation",                 "dd")
@@ -41,10 +41,10 @@ inp.put_dbl("eigen_tolerance",          1e-8)
 inp.put_int("eigen_print_out",          2)
 inp.put_int("eigen_print_interval",     1)
 #
-inp.put_str("bc_left",                  "reflect")
-inp.put_str("bc_right",                 "reflect")
-inp.put_str("bc_bottom",                "reflect")
-inp.put_str("bc_top",                   "reflect")
+inp.put_str("bc_west",                  "reflect")
+inp.put_str("bc_east",                  "vacuum")
+inp.put_str("bc_south",                 "reflect")
+inp.put_str("bc_north",                 "vacuum")
 #
 inp.put_str("quad_type",                "quadruplerange")
 inp.put_int("quad_order",               2)
