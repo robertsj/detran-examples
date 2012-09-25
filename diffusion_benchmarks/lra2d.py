@@ -1,8 +1,8 @@
-# detran-examples/diffusion_benchmarks/iaea.py
+# detran-examples/diffusion_benchmarks/lra2d.py
 #
-# Solves 2D IAEA benchmark.
+# Solves 2D LRA benchmark.
 #
-# Reference keff ~ 1.02959
+# Reference keff ~ 0.99636
 
 import numpy as np
 import time
@@ -13,13 +13,14 @@ from detran import *
 # Input
 #-----------------------------------------------------------------------------#
 inp = InputDB.Create()
-inp.put_int("number_groups",            2)
-inp.put_int("diffusion_max_iters",      1000)
-inp.put_dbl("diffusion_tolerance",      1e-6)
-inp.put_str("bc_west",                  "reflect")
-inp.put_str("bc_east",                  "vacuum")
-inp.put_str("bc_south",                 "reflect")
-inp.put_str("bc_north",                 "vacuum")
+inp.put_int("number_groups",              2)
+inp.put_int("diffusion_max_iters",        1000)
+inp.put_dbl("diffusion_tolerance",        1e-6)
+inp.put_str("diffusion_eigensolver_type", "slepc")
+inp.put_str("bc_west",                    "reflect")
+inp.put_str("bc_east",                    "vacuum")
+inp.put_str("bc_south",                   "reflect")
+inp.put_str("bc_north",                   "vacuum")
 
 #-----------------------------------------------------------------------------#
 # Material
@@ -28,7 +29,7 @@ inp.put_str("bc_north",                 "vacuum")
 # not any within-group scattering, we'll simply put the removal values into
 # the total, since removal is total minus within group.  Note also that the
 # removal values are adjusted for axial buckling.
-mat = Material.Create(4, 2, False)
+mat = Material.Create(5, 2, False)
 B = 1.e-4
 # Material 0
 mat.set_sigma_t(0,   vec_dbl([0.008252, 0.1003]))
@@ -58,21 +59,27 @@ mat.set_chi(3, 0,             1.0)
 mat.set_sigma_t(4,   vec_dbl([0.0006034, 0.01911]))
 mat.set_sigma_s(4, 1, 0,      0.04754) 
 mat.set_diff_coef(4, vec_dbl([1.257, 0.1592]))
-# correct removal for buckling and 1->2 scatter
+# Corrections to removal
 for m in range(0, 5) :
-  orig = mat.sigma_t(m, 1)
+  # group 0 -- buckling
+  orig = mat.sigma_t(m, 0)
   new  = orig + mat.diff_coef(m, 0)*B
-  mat.set_sigma_t(m, 1, new)
+  mat.set_sigma_t(m, 0, new)
+  # group 0 -- s12 
   orig = mat.sigma_t(m, 0)
   new  = orig + mat.sigma_s(m, 1, 0)
   mat.set_sigma_t(m, 0, new)
+  # group 1 -- buckling
+  orig = mat.sigma_t(m, 1)
+  new  = orig + mat.diff_coef(m, 1)*B
+  mat.set_sigma_t(m, 1, new)
 mat.finalize()
 
 #-----------------------------------------------------------------------------#
 # Geometry
 #-----------------------------------------------------------------------------#
 cm = [0.0, 15.0, 75.0, 105.0, 120.0, 135.0, 165.0]
-fm = vec_int(6, 20)
+fm = vec_int(6, 10)
 for i in range(1, 6) :
   fm[i] = 2*fm[i]
 mt = [1, 0, 1, 2, 2, 4,
@@ -92,8 +99,7 @@ state = State.Create(inp, mesh)
 # Execute
 #-----------------------------------------------------------------------------#
 Manager.initialize(sys.argv)
-solver = DiffusionEigensolver(inp, mat, mesh, state)
-
+solver = DiffusionEigen2D(inp, mat, mesh, state)
 t = time.time()
 solver.solve()
 print "elapsed = ", time.time()-t

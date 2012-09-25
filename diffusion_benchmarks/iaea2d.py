@@ -1,4 +1,4 @@
-# detran-examples/diffusion_benchmarks/iaea.py
+# detran-examples/diffusion_benchmarks/iaea2d.py
 #
 # Solves 2D IAEA benchmark.
 #
@@ -13,13 +13,14 @@ from detran import *
 # Input
 #-----------------------------------------------------------------------------#
 inp = InputDB.Create()
-inp.put_int("number_groups",            2)
-inp.put_int("diffusion_max_iters",      1000)
-inp.put_dbl("diffusion_tolerance",      1e-6)
-inp.put_str("bc_west",                  "reflect")
-inp.put_str("bc_east",                  "vacuum")
-inp.put_str("bc_south",                 "reflect")
-inp.put_str("bc_north",                 "vacuum")
+inp.put_int("number_groups",              2)
+inp.put_int("diffusion_max_iters",        1000)
+inp.put_dbl("diffusion_tolerance",        1e-6)
+inp.put_str("diffusion_eigensolver_type", "slepc")
+inp.put_str("bc_west",                    "reflect")
+inp.put_str("bc_east",                    "vacuum")
+inp.put_str("bc_south",                   "reflect")
+inp.put_str("bc_north",                   "vacuum")
 
 #-----------------------------------------------------------------------------#
 # Material
@@ -80,7 +81,7 @@ state = State.Create(inp, mesh)
 # Execute
 #-----------------------------------------------------------------------------#
 Manager.initialize(sys.argv)
-solver = DiffusionEigensolver(inp, mat, mesh, state)
+solver = DiffusionEigen2D(inp, mat, mesh, state)
 t = time.time()
 solver.solve()
 print "elapsed = ", time.time()-t
