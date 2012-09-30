@@ -18,27 +18,40 @@ class ResponseDB(object) :
     
   def initialize_node(self, response, responsename) :
     """ Add a group to the database for this node 
+
+        Each node can be based on a completely different
+        approximation; the end user must ensure nodes are
+        coupled appropriately.  Moreover, each node can 
+        be expanded or interpolated.
     """
     # set the group for this node
     self.nodegroup = self.file.create_group(responsename)
     # get the node size
-    size = response._number_responses
+    size = response.number_responses
     # get number sides
-    sides = response._number_sides
-    # if we're interpolating, set the keffs and presize
-    if response._flag :
-      self.nodegroup['keffs'] = response._keffs
-      n = len(response._keffs)
-      dset = self.nodegroup.create_dataset("R", (n, size, size),  '=f8')
-      dset = self.nodegroup.create_dataset("L", (n, sides, size), '=f8')
-      dset = self.nodegroup.create_dataset("F", (n, size), '=f8')
-      dset = self.nodegroup.create_dataset("A", (n, size), '=f8')
+    sides = response.number_sides
+
+    if response.flag :
+      # we're interpolating, so set the keffs
+      self.nodegroup['keffs'] = response.keffs
+      n = len(response.keffs)
+      self.nodegroup.attrs['scheme'] = 1
+    else :
+      # we're expanding, so set the number of terms
+      n = response.keffs
+      self.nodegroup.attrs['scheme'] = 0
+    # set the number of terms (applies to both schemes)
+    self.nodegroup.attrs['number_terms'] = n
+    dset = self.nodegroup.create_dataset("R", (n, size, size),  '=f8')
+    dset = self.nodegroup.create_dataset("L", (n, sides, size), '=f8')
+    dset = self.nodegroup.create_dataset("F", (n, size), '=f8')
+    dset = self.nodegroup.create_dataset("A", (n, size), '=f8')
 
   def put(self, response, kindex) :
 
     # append datasets
-    self.nodegroup['R'][kindex, :, :] = response._R
-    self.nodegroup['F'][kindex, :   ] = response._F
-    self.nodegroup['A'][kindex, :   ] = response._A
-    self.nodegroup['L'][kindex, :, :] = response._L
+    self.nodegroup['R'][kindex, :, :] = response.R
+    self.nodegroup['F'][kindex, :   ] = response.F
+    self.nodegroup['A'][kindex, :   ] = response.A
+    self.nodegroup['L'][kindex, :, :] = response.L
 
