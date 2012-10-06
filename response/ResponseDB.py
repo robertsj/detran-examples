@@ -28,9 +28,10 @@ class ResponseDB(object) :
     self.nodegroup = self.file.create_group(responsename)
     # get the node size
     size = response.number_responses
+    self.nodegroup.attrs['response_size'] = size
     # get number sides
     sides = response.number_sides
-
+    self.nodegroup.attrs['number_surfaces'] = sides
     if response.flag :
       # we're interpolating, so set the keffs
       self.nodegroup['keffs'] = response.keffs
@@ -41,7 +42,7 @@ class ResponseDB(object) :
       n = response.keffs
       self.nodegroup.attrs['scheme'] = 0
     # set the number of terms (applies to both schemes)
-    self.nodegroup.attrs['number_terms'] = n
+    self.nodegroup.attrs['number_keffs'] = n
     dset = self.nodegroup.create_dataset("R", (n, size, size),  '=f8')
     dset = self.nodegroup.create_dataset("L", (n, sides, size), '=f8')
     dset = self.nodegroup.create_dataset("F", (n, size), '=f8')
@@ -54,4 +55,8 @@ class ResponseDB(object) :
     self.nodegroup['F'][kindex, :   ] = response.F
     self.nodegroup['A'][kindex, :   ] = response.A
     self.nodegroup['L'][kindex, :, :] = response.L
+    print response.F
 
+  def close(self) :
+   print "closing hdf5"
+   self.file.close()

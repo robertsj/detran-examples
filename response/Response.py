@@ -35,7 +35,7 @@ class Response(object) :
       efficient if only a few terms are required. 
   """
   
-  def __init__(self, inp, material, mesh, db, flag=False, keffs=[]) :
+  def __init__(self, inp, material, mesh, name, db, flag=False, keffs=[]) :
     """ Constructor.
 
     Args:
@@ -49,7 +49,8 @@ class Response(object) :
     """
     self.inp       = inp                                
     self.material  = material                         
-    self.mesh      = mesh                                
+    self.mesh      = mesh     
+    self.nodename  = name                           
     self.number_groups = self.material.number_groups()  
     self.dimension     = self.mesh.dimension()
     self.number_sides  = self.dimension * 2
@@ -140,7 +141,7 @@ class Response(object) :
     """ 
 
     # initialize the inp for this node
-    self.db.initialize_node(self, 'fuel')
+    self.db.initialize_node(self, self.nodename)
 
     print "RESPONSE GENERATOR: "
     k = 0
