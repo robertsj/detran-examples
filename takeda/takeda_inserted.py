@@ -8,8 +8,8 @@ import time
 import sys
 from detran import *
 
-# Executor
-execute = Execute3D(sys.argv)
+# Initialize
+Manager.initialize(sys.argv)
 
 # Input
 inp = InputDB.Create()
@@ -106,18 +106,14 @@ try:
 except:
   print "Error using HDF5---perhaps detran is not built with it."
 
-
-# Initialize and set source
-execute.initialize(inp, mat, mesh)
-
 # Solve
 start = time.time()
-execute.solve()
-elapsed = (time.time() - start)
-print elapsed, " seconds"
+solver = Eigen3D(inp, mat, mesh)
+solver.solve()
+print "elapsed = ", time.time() - start
+state = solver.state()
 
-state = execute.get_state()
-
+# Save fluxes
 try :
   silo = SiloOutput(mesh)
   silo.initialize("takeda_inserted.silo")
@@ -130,5 +126,5 @@ except :
 #-----------------------------------------------------------------------------#
 # Wrap Up
 #-----------------------------------------------------------------------------#
-execute.finalize()
+Manager.finalize()
 

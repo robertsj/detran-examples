@@ -8,8 +8,8 @@ import time
 import sys
 from detran import *
 
-# Executor
-execute = Execute3D(sys.argv)
+# Initialize
+Manager.initialize(sys.argv)
 
 # Input
 inp = InputDB.Create()
@@ -18,8 +18,8 @@ inp.put_int("number_groups",            2)
 inp.put_int("dimension",                3)
 inp.put_str("equation",                 "dd")
 # Inner solver
-inp.put_str("inner_solver",             "GMRES")
-inp.put_int("inner_max_iters",          100)
+inp.put_str("inner_solver",             "SI")
+inp.put_int("inner_max_iters",          1)
 inp.put_dbl("inner_tolerance",          1e-6)
 inp.put_int("inner_print_out",          0)
 inp.put_int("inner_print_interval",     10)
@@ -106,17 +106,12 @@ try:
 except:
   print("Error using HDF5---perhaps detran is not built with it."
 
-
-# Initialize and set source
-execute.initialize(inp, mat, mesh)
-
 # Solve
 start = time.time()
-execute.solve()
-elapsed = (time.time() - start)
-print elapsed, " seconds"
-
-state = execute.get_state()
+solver = Eigen3D(inp, mat, mesh)
+solver.solve()
+print "elapsed = ", time.time() - start
+state = solver.state()
 
 try :
   silo = SiloOutput(mesh)
@@ -130,5 +125,5 @@ except :
 #-----------------------------------------------------------------------------#
 # Wrap Up
 #-----------------------------------------------------------------------------#
-execute.finalize()
+Manager.finalize()
 

@@ -16,41 +16,43 @@ from pins_c5g7 import get_pins
 from material_c5g7 import get_materials
 from plot_utils import *
 #-----------------------------------------------------------------------------#
+# Initialize
+#-----------------------------------------------------------------------------#
+Manager.initialize(sys.argv)
+#-----------------------------------------------------------------------------#
 # Input
 #-----------------------------------------------------------------------------#
 inp = InputDB.Create()
 inp.put_str("equation",                 "dd")
 inp.put_str("problem_type",             "eigenvalue")
+inp.put_int("number_groups",            7)
 #
 inp.put_str("inner_solver",             "SI")
-inp.put_int("inner_max_iters",          1)
-inp.put_dbl("inner_tolerance",          1e-8)
-inp.put_int("inner_print_out",          0)
+inp.put_int("inner_max_iters",          10)
+inp.put_dbl("inner_tolerance",          1e-3)
+inp.put_int("inner_print_level",        0)
 inp.put_int("inner_print_interval",     10)
-inp.put_int("inner_use_pc",             1)
 #
 inp.put_str("outer_solver",             "GS")
-inp.put_int("outer_max_iters",          0)
-inp.put_dbl("outer_tolerance",          1e-8)
-inp.put_int("outer_print_out",          1)
-inp.put_int("outer_print_interval",     2)
-inp.put_int("outer_use_pc",             0)
-inp.put_dbl("outer_pc_tolerance",       1e-3)
-inp.put_int("outer_upscatter_cutoff",   0)
-# 
+inp.put_int("outer_max_iters",          10)
+inp.put_dbl("outer_tolerance",          1e-4)
+inp.put_int("outer_print_level",        0)
+inp.put_int("outer_print_interval",     1)
+#
 inp.put_str("eigen_solver",             "PI")
 inp.put_int("eigen_max_iters",          100)
-inp.put_dbl("eigen_tolerance",          1e-8)
-inp.put_int("eigen_print_out",          2)
+inp.put_dbl("eigen_tolerance",          1e-6)
+inp.put_int("eigen_print_level",        2)
 inp.put_int("eigen_print_interval",     1)
+inp.put_dbl("eigen_pi_omega",           1.2)
 #
-#inp.put_str("bc_left",                  "reflect")
-#inp.put_str("bc_right",                 "reflect")
-#inp.put_str("bc_bottom",                "reflect")
-#inp.put_str("bc_top",                   "reflect")
+inp.put_str("bc_west",                  "reflect")
+inp.put_str("bc_east",                  "reflect")
+inp.put_str("bc_south",                 "reflect")
+inp.put_str("bc_north",                 "reflect")
 #
 inp.put_str("quad_type",                "quadruplerange")
-inp.put_int("quad_order",               2)
+inp.put_int("quad_order",               18)
 #-----------------------------------------------------------------------------#
 # Material
 #-----------------------------------------------------------------------------#
@@ -61,31 +63,24 @@ mat = get_materials()
 assemblies = get_assemblies(7, True)
 mesh = assemblies[0].mesh()
 #-----------------------------------------------------------------------------#
-# Execute
+# Solve
 #-----------------------------------------------------------------------------#
-execute = Execute2D(sys.argv)
-execute.initialize(inp, mat, mesh)
-t = time.time()
-execute.solve()
-print "elapsed = ", time.time()-t
+start = time.time()
+solver = Eigen2D(inp, mat, mesh)
+solver.solve()
+print "elapsed = ", time.time() - start
 #-----------------------------------------------------------------------------#
 # Plot
 #-----------------------------------------------------------------------------#
-#from plot_utils import *
-#state = execute.get_state()
-#plot_flux(mesh, np.asarray(state.phi(0)))
-#try:
-#  silo = SiloOutput(inp, mesh)
-#  silo.initialize()
-#  silo.write_flux(state)
-#  silo.finalize()
-#except:
-#  print "no silo"
-#rates = ReactionRates(mat, mesh, state)
-#pinpower = rates.region_power("PINS") 
-#print np.asarray(pinpower)
+try :
+  state = solver.state()
+  silo = SiloOutput(mesh)
+  silo.initialize("c5g7assembly.silo")
+  silo.write_scalar_flux(state)
+  silo.finalize()
+except :
+  print "Silo error?"
 #-----------------------------------------------------------------------------#
 # Wrap Up
 #-----------------------------------------------------------------------------#
-execute.finalize()
-
+Manager.finalize()
