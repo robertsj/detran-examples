@@ -13,14 +13,23 @@ from detran import *
 # Input
 #-----------------------------------------------------------------------------#
 inp = InputDB.Create()
-inp.put_int("number_groups",              2)
-inp.put_int("diffusion_max_iters",        1000)
-inp.put_dbl("diffusion_tolerance",        1e-6)
-inp.put_str("diffusion_eigensolver_type", "slepc")
-inp.put_str("bc_west",                    "reflect")
-inp.put_str("bc_east",                    "vacuum")
-inp.put_str("bc_south",                   "reflect")
-inp.put_str("bc_north",                   "vacuum")
+inp.put_int("number_groups",                  2)
+inp.put_int("dimension",                      2)
+inp.put_str("equation",                       "diffusion")
+inp.put_str("bc_west",                        "reflect")
+inp.put_str("bc_east",                        "vacuum")
+inp.put_str("bc_south",                       "reflect")
+inp.put_str("bc_north",                       "vacuum")
+inp.put_int("eigen_max_iters",                1000)
+db = InputDB.Create("callow_db")
+# outer gmres parameters
+db.put_dbl("linear_solver_atol",                  1e-8);
+db.put_dbl("linear_solver_rtol",                  1e-8);
+db.put_str("linear_solver_type",                  "gmres");
+db.put_int("linear_solver_maxit",                 5000);
+db.put_int("linear_solver_gmres_restart",         30);
+db.put_int("linear_solver_monitor_level",         0);
+inp.put_spdb("outer_solver_db", db)
 
 #-----------------------------------------------------------------------------#
 # Material
@@ -29,7 +38,7 @@ inp.put_str("bc_north",                   "vacuum")
 # not any within-group scattering, we'll simply put the removal values into
 # the total, since removal is total minus within group.  Note also that the
 # removal values are adjusted for axial buckling.
-mat = Material.Create(4, 2, False)
+mat = Material.Create(4, 2, "IAEA-2D")
 # Material 0
 mat.set_sigma_t(0, vec_dbl([0.030120, 0.080032]))
 mat.set_sigma_s(0, 1, 0, 0.02) 
@@ -73,17 +82,13 @@ mt = [2, 1, 1, 1, 2, 1, 1, 0, 3,
 mesh = Mesh2D.Create(fm, fm, cm, cm, mt)
 
 #-----------------------------------------------------------------------------#
-# State
-#-----------------------------------------------------------------------------#
-state = State.Create(inp, mesh)
-
-#-----------------------------------------------------------------------------#
 # Execute
 #-----------------------------------------------------------------------------#
 Manager.initialize(sys.argv)
-solver = DiffusionEigen2D(inp, mat, mesh, state)
+solver = Eigen2D(inp, mat, mesh)
 t = time.time()
 solver.solve()
+state = solver.state()
 print "elapsed = ", time.time()-t
 
 #-----------------------------------------------------------------------------#
