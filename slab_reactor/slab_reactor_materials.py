@@ -11,7 +11,7 @@ def get_materials() :
     # Two-group data from 1-d coarse mesh benchmarks (Mosher, Ilas etc.)
     
     # Create the Materials object.
-    mat = Material.Create(4, 2, False);
+    mat = Material.Create(4, 2, "slabreactor");
 
     # ---------------------------
     # Material 0: Water           

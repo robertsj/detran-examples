@@ -7,7 +7,7 @@ from detran import Material
 def get_materials() :
 
   # Create the new database.
-  mat = Material.Create(7, 7, False)
+  mat = Material.Create(7, 7, "C5G7")
 
   # --------------------------------------------
   # Material 0: UO2 fuel-clad
@@ -495,6 +495,8 @@ def get_materials() :
   mat.set_sigma_s(m, 6, 6, 2.48070E+00)
 
   # Finalize
+  mat.compute_diff_coef()
+  mat.compute_sigma_a() # note, we do this directly for conservation
   mat.finalize()
 
   return mat

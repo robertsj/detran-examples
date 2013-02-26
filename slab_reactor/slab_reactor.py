@@ -24,69 +24,66 @@
 #      C       0.681362819
 #      D       0.191909997
 
-import numpy as np
-import time
-import sys
 from detran import *
 import slab_reactor_materials
 import slab_reactor_geometry
+import time
 
-#------------------------------------------------------------------------------#
-# Initialize
-#------------------------------------------------------------------------------#
+def run() :
 
-Manager.initialize(sys.argv)
+  #------------------------------------------------------------------------------#
+  # Initialize
+  #------------------------------------------------------------------------------#
 
-#------------------------------------------------------------------------------#
-# Input
-#------------------------------------------------------------------------------#
+  Manager.initialize(sys.argv)
 
-inp = InputDB.Create()
-inp.put_str("problem_type",               "eigenvalue")
-inp.put_int("number_groups",              2)
-inp.put_str("equation",                   "dd")
-inp.put_str("inner_solver",               "SI")
-inp.put_int("inner_max_iters",            1000)
-inp.put_dbl("inner_tolerance",            1e-7)
-inp.put_int("inner_print_level",          0)
-inp.put_str("outer_solver",               "GS")
-inp.put_int("outer_max_iters",            1000)
-inp.put_dbl("outer_tolerance",            1e-7)
-inp.put_int("outer_print_level",          0)
-inp.put_str("eigen_solver",               "PI")
-inp.put_int("eigen_max_iters",            200)
-inp.put_dbl("eigen_tolerance",            1e-7)
-inp.put_str("bc_west",                    "vacuum")
-inp.put_str("bc_east",                    "vacuum")
-inp.put_str("quad_type",                  "gausslegendre")
-inp.put_int("quad_number_polar_octant",   16)
+  #------------------------------------------------------------------------------#
+  # Input
+  #------------------------------------------------------------------------------#
 
-#------------------------------------------------------------------------------#
-# Material
-#------------------------------------------------------------------------------#
+  inp = InputDB.Create()
+  inp.put_str("problem_type",               "eigenvalue")
+  inp.put_int("number_groups",              2)
+  inp.put_str("equation",                   "dd")
+  inp.put_str("inner_solver",               "SI")
+  inp.put_int("inner_max_iters",            1000)
+  inp.put_dbl("inner_tolerance",            1e-7)
+  inp.put_int("inner_print_level",          0)
+  inp.put_str("outer_solver",               "GS")
+  inp.put_int("outer_max_iters",            1000)
+  inp.put_dbl("outer_tolerance",            1e-7)
+  inp.put_int("outer_print_level",          0)
+  inp.put_str("eigen_solver",               "PI")
+  inp.put_int("eigen_max_iters",            200)
+  inp.put_dbl("eigen_tolerance",            1e-7)
+  inp.put_str("bc_west",                    "vacuum")
+  inp.put_str("bc_east",                    "vacuum")
+  inp.put_str("quad_type",                  "gausslegendre")
+  inp.put_int("quad_number_polar_octant",   16)
 
-mat = slab_reactor_materials.get_materials()
+  #------------------------------------------------------------------------------#
+  # Material
+  #------------------------------------------------------------------------------#
 
-#------------------------------------------------------------------------------#
-# Mesh
-#------------------------------------------------------------------------------#
+  mat = slab_reactor_materials.get_materials()
 
-# Options are: assemblyX for X=0,1,2,3 or coreX for X=0,1,2
-mesh = slab_reactor_geometry.get_mesh("core0")
+  #------------------------------------------------------------------------------#
+  # Mesh
+  #------------------------------------------------------------------------------#
 
-#------------------------------------------------------------------------------#
-# Solve
-#------------------------------------------------------------------------------#
+  # Options are: assemblyX for X=0,1,2,3 or coreX for X=0,1,2
+  mesh = slab_reactor_geometry.get_mesh("core0")
 
-start = time.time()
-solver = Eigen1D(inp, mat, mesh)
-solver.solve()
-elapsed = (time.time() - start)
-print elapsed, " seconds"
+  #------------------------------------------------------------------------------#
+  # Solve
+  #------------------------------------------------------------------------------#
 
-#------------------------------------------------------------------------------#
-# Wrap Up
-#------------------------------------------------------------------------------#
+  start = time.time()
+  solver = Eigen1D(inp, mat, mesh)
+  solver.solve()
+  elapsed = (time.time() - start)
+  print elapsed, " seconds"
 
-Manager.finalize()
-
+if __name__ == "__main__":
+  Manager.initialize(sys.argv)
+  run()

@@ -22,4 +22,26 @@ def get_core(number, flag) :
   core.finalize(core_map)
   return core
 
+def get_large_core(number, flag) :
+  """ Return the core for the C5G7 benchmark.
+
+  See get_pincells for parameter definition.
+  """
+
+  assemblies = get_assemblies(number, flag)
+  core       = Core.Create(7)
+  core.add_assembly(assemblies[0])
+  core.add_assembly(assemblies[1])
+  core.add_assembly(assemblies[2])
+  core_map = [0,1,0,1,0,1,2,
+              1,0,1,0,1,0,2,
+              0,1,0,1,0,1,2,
+              1,0,1,0,1,0,2,
+              0,1,0,1,0,1,2,
+              1,0,1,0,1,0,2,
+              2,2,2,2,2,2,2]
+  core.finalize(core_map)
+  return core
+
+
 

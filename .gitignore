@@ -17,3 +17,6 @@
 # Binaries
 *.h5
 *.silo
+
+# Temporary saves
+*.py~
