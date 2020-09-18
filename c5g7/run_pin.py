@@ -51,7 +51,7 @@ def run() :
   inp.put_str("bc_south",                       "reflect")
   inp.put_str("bc_north",                       "reflect")
   #
-  inp.put_str("quad_type",                      "quadruplerange")
+  #inp.put_str("quad_type",                      "quadruplerange")
   inp.put_int("quad_number_polar_octant",       5)
   inp.put_int("quad_number_azimuth_octant",     10)
   #
