@@ -202,7 +202,7 @@ def run():
 
     cases = ["core0", "core1", "core2",
              "assembly0", "assembly1", "assembly2", "assembly3"]
-   
+    keffs = []
     for case in cases:
         if "assem" in case:
             inp.put_str("bc_west", "reflect")
@@ -210,6 +210,8 @@ def run():
         mesh = get_mesh(case)
         solver = Eigen1D(inp, mat, mesh)
         solver.solve()
+        keffs.append(solver.state().eigenvalue())
+    return cases, keffs
 
 if __name__ == "__main__":
     Manager.initialize(sys.argv)
