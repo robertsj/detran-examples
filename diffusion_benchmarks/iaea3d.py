@@ -120,6 +120,7 @@ def run():
     solver.solve()
     state = solver.state()
     print "elapsed = ", time.time()-t
+    return state.eigenvalue()
 
 if __name__ == "__main__":
   Manager.initialize(sys.argv)

@@ -27,7 +27,7 @@ def get_input(solver=None):
     db.put_int("linear_solver_maxit",                 5000);
     db.put_int("linear_solver_gmres_restart",         30);
     db.put_str("eigen_solver_type",                   "gd");
-    db.put_int("eigen_solver_monitor_level",          2);
+    db.put_int("eigen_solver_monitor_level",          0);
     db.put_int("linear_solver_monitor_level",         0);
     inp.put_spdb("outer_solver_db", db)
     inp.put_spdb("eigen_solver_db", db)

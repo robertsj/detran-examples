@@ -93,7 +93,7 @@ def run():
     # Model
     inp = get_input()
     mat = get_material()
-    mesh = get_mesh()
+    mesh = get_mesh(5)
 
     # Solver
     solver = Eigen2D(inp, mat, mesh)
@@ -101,6 +101,7 @@ def run():
     solver.solve()
     state = solver.state()
     print "elapsed = ", time.time()-t
+    return state.eigenvalue()
 
 if __name__ == "__main__":
   Manager.initialize(sys.argv)
