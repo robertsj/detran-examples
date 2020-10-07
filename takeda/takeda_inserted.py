@@ -1,7 +1,6 @@
-# pyexamples/takeda/takeda_inserted.py
-#
-# Takeda benchmark, inserted control.
+# Takeda benchmark, model 1, inserted control (case 1)
 # Reference keff ~ 0.9624
+# 3-D NEUTRON TRANSPORT BENCHMARKS, NEACRP-L-330
 
 from detran import *
 import time
@@ -15,7 +14,7 @@ def run() :
   inp.put_int("dimension",                3)
   inp.put_str("equation",                 "dd")
   # Inner solver
-  inp.put_str("inner_solver",             "SI")
+  inp.put_str("inner_solver",             "GMRES")
   inp.put_int("inner_max_iters",          1)
   inp.put_dbl("inner_tolerance",          1e-6)
   inp.put_int("inner_print_level",        0)
@@ -25,15 +24,15 @@ def run() :
   inp.put_int("inner_pc_ilu_levels",      0)
   inp.put_str("inner_pc_type",            "none")
   # Outer solver
-  inp.put_str("outer_solver",             "GS")
+  inp.put_str("outer_solver",             "GMRES")
   inp.put_int("outer_max_iters",          0)
   inp.put_dbl("outer_tolerance",          1e-5)
   inp.put_int("outer_print_level",        0)
   inp.put_int("outer_print_interval",     2)
-  inp.put_int("outer_upscatter_cutoff",   0) 
+  inp.put_int("outer_upscatter_cutoff",   0)
   inp.put_int("outer_use_pc",             0)
   # Eigensolver
-  inp.put_str("eigen_solver",             "PI")
+  inp.put_str("eigen_solver",             "arnoldi")
   inp.put_int("eigen_max_iters",          1000)
   inp.put_dbl("eigen_tolerance",          1e-4)
   inp.put_int("eigen_print_level",        2)
@@ -46,9 +45,22 @@ def run() :
   inp.put_str("bc_bottom",                "reflect")
   inp.put_str("bc_top",                   "vacuum")
   #
-  inp.put_str("quad_type",                  "chebyshevlegendre")
   inp.put_int("quad_number_azimuth_octant", 2)
   inp.put_int("quad_number_polar_octant",   2)
+
+  db = InputDB.Create("callow_db")
+  # outer gmres parameters
+  db.put_dbl("linear_solver_atol",                  1e-8);
+  db.put_dbl("linear_solver_rtol",                  1e-8);
+  db.put_str("linear_solver_type",                  "gmres");
+  db.put_int("linear_solver_maxit",                 5000);
+  db.put_int("linear_solver_gmres_restart",         30);
+  db.put_str("eigen_solver_type",                   "gd");
+  db.put_int("eigen_solver_monitor_level",          0);
+  db.put_int("linear_solver_monitor_level",         0);
+  inp.put_spdb("inner_solver_db", db)
+  inp.put_spdb("outer_solver_db", db)
+  inp.put_spdb("eigen_solver_db", db)
 
   # Mesh
   cm_x = [0.0, 15.0, 20.0, 25.0]
@@ -58,11 +70,11 @@ def run() :
   fm_y = [10, 20, 20]
   fm_z = [30, 20]
   mt   = [# Fueled region
-          0, 2, 1, 
+          0, 2, 1,
           0, 1, 1,
-          1, 1, 1, 
+          1, 1, 1,
           # Above fuel
-          1, 2, 1, 
+          1, 2, 1,
           1, 1, 1,
           1, 1, 1]
 
@@ -120,6 +132,8 @@ def run() :
     silo.finalize()
   except :
     print "Error using Silo---perhaps detran is not built with it."
+
+  return state.eigenvalue()
 
 if __name__ == "__main__":
   Manager.initialize(sys.argv)
