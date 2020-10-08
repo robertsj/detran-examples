@@ -4,6 +4,9 @@
 #
 # Using 7x7 volume-conserving pin cell, DD SN, and a 3x6 QR quadrature,
 # the reference keff is 1.186572165.
+#
+# By default, the problem is solved using generalized Davidson method
+# using a multigroup, coarse-mesh, diffusion precondition (MGCMDSA).
 
 import numpy as np
 import time
@@ -35,15 +38,15 @@ def run() :
     inp.put_int("outer_krylov_group_cutoff",      0) # gmres on whole mg
     inp.put_str("outer_pc_type",                  "mgcmdsa")
 
-    inp.put_str("eigen_solver_pc_type",                  "mgcmdsa")
+    inp.put_str("eigen_solver_pc_type",           "mgcmdsa")
     inp.put_int('mgpc_coarse_mesh_level',         7)
     inp.put_int('mgpc_condensation_option',       1)
     inp.put_int('mgpc_cmdsa_use_smoothing',       1)
-    inp.put_int('mgpc_cmdsa_smoothing_iters',     3)
-    inp.put_dbl('mgpc_cmdsa_smoothing_relax',     0.7)
+    inp.put_int('mgpc_cmdsa_smoothing_iters',     2)
+    inp.put_dbl('mgpc_cmdsa_smoothing_relax',     0.8)
 
     #
-    inp.put_str("eigen_solver",                   "PI")
+    inp.put_str("eigen_solver",                   "GD")
     inp.put_int("eigen_max_iters",                1000)
     inp.put_dbl("eigen_tolerance",                1e-6)
     inp.put_int("eigen_print_level",              2)
@@ -54,6 +57,7 @@ def run() :
     inp.put_str("bc_south",                       "reflect")
     inp.put_str("bc_north",                       "vacuum")
     #
+    inp.put_str("quad_type",                      "asqr-asdr")
     inp.put_int("quad_number_polar_octant",       3)
     inp.put_int("quad_number_azimuth_octant",     6)
     #
@@ -65,20 +69,16 @@ def run() :
     db.put_int("linear_solver_gmres_restart",     30);
     db.put_int("linear_solver_monitor_level",     1);
     db.put_str("pc_type",                         "ilu0");
-    #db.put_str("petsc_pc_type",                   "lu");
     db.put_str("eigen_solver_type",               "gd");
     db.put_int("eigen_solver_monitor_level",      1);
     inp.put_spdb("inner_solver_db",               db)
     inp.put_spdb("inner_pc_db",                   db)
     inp.put_spdb("outer_solver_db",               db)
-    inp.put_spdb("outer_pc_db",               db)
+    inp.put_spdb("outer_pc_db",                   db)
     inp.put_spdb("eigen_solver_db",               db)
     inp.put_spdb("eigen_solver_pc_db",            db)
 
-
-
     mat = get_materials()
-
     core = get_core(7, True)
     mesh = core.mesh()
 
