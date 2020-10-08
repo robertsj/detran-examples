@@ -1,6 +1,4 @@
-# pyexamples/assemblies_c5g7.py
-#
-# 2-D assemblies definitions for the C5G7 benchmark
+# 2-D assembly definitions for the C5G7 benchmark
 
 from pins_c5g7 import *
 from detran import *
@@ -101,4 +99,3 @@ def get_assemblies(number, flag) :
   assem3.finalize(pin_map3)
 
   return assem1, assem2, assem3
-
