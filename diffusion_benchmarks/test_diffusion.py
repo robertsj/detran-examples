@@ -1,14 +1,7 @@
 import unittest
-
 import biblis2d, iaea2d, iaea3d, lra2d
 
-
 class TestDiffusionBenchmarks(unittest.TestCase):
-
-    ref_keffs = {'iaea2d': 1.02959,
-                 'biblis2d': 1.02513,
-                 'lra2d': 0.99636,
-                 'iaea3d': 1.029096}
 
     def test_iaea2d(self):
         got = iaea2d.run()
