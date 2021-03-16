@@ -14,13 +14,13 @@ import pickle
 def get_input() :
     inp = utilities.InputDB.Create()
     inp.put_int("number_groups",                  2)
-    inp.put_int("dimension",                      2)
+    inp.put_int("dimension",                      1)
     inp.put_str("equation",                       "diffusion")
     inp.put_int("adjoint",                        0)
     inp.put_str("bc_west",                        "vacuum")
     inp.put_str("bc_east",                        "vacuum")
     inp.put_str("eigen_solver",                   "diffusion")
-    inp.put_dbl("eigen_tolerance",                1e-12)
+    inp.put_dbl("eigen_tolerance",                1e-14)
     inp.put_int("eigen_max_iters",                1000)
     inp.put_str("outer_solver",                   "GS")
     inp.put_dbl("outer_tolerance",                1e-12)
@@ -31,31 +31,29 @@ def get_input() :
     inp.put_str("inner_solver",                   "SI")
     inp.put_dbl("inner_tolerance",                1e-12)
     inp.put_int("inner_max_iters",                1000)
-    inp.put_int("inner_print_level",             1)
+    inp.put_int("inner_print_level",              0)
     # gmres parameters
     db = utilities.InputDB.Create("callow_db")
    # db.put_dbl("linear_solver_atol",              0.0);
     db.put_dbl("linear_solver_rtol",              1e-13);
     db.put_str("linear_solver_type",              "gmres");
     db.put_int("linear_solver_maxit",             1000);
-    db.put_int("linear_solver_gmres_restart",     30);
+    db.put_int("linear_solver_gmres_restart",     50);
     db.put_int("linear_solver_monitor_level",     0);
-    db.put_str("pc_type",                         "petsc");
-    db.put_str("petsc_pc_type",                   "lu");
-    db.put_int("petsc_pc_factor_levels",          3);
+    #db.put_str("pc_type",                         "ilu0");   
     db.put_str("eigen_solver_type",               "power");
     db.put_int("eigen_solver_maxit",              1000);
-    db.put_int("eigen_solver_monitor_level",      2);
-    db.put_dbl("eigen_solver_tol",                1.0e-10)
+    db.put_int("eigen_solver_monitor_level",      1);
+    db.put_dbl("eigen_solver_tol",                1.0e-14)
     inp.put_spdb("inner_solver_db", db)
     inp.put_spdb("inner_pc_db", db)
     inp.put_spdb("outer_solver_db", db) 
     inp.put_spdb("eigen_solver_db", db)
-    inp.put_int("ts_max_steps",                   10000)
-    inp.put_int("ts_scheme",                      Time1D.IMP)
+    inp.put_int("ts_max_steps",                   1000000)
+    inp.put_int("ts_scheme",                      Time1D.BDF1)
     inp.put_int("ts_output",                      0)
-    inp.put_dbl("ts_step_size",                   0.01)
-    inp.put_dbl("ts_final_time",                  3.0)
+    inp.put_dbl("ts_step_size",                   0.05)
+    inp.put_dbl("ts_final_time",                  150.0)
     #inp.put_int("ts_no_extrapolation",            1)
     inp.put_int("ts_max_iters",                   10)
     inp.put_dbl("ts_tolerance",                   1.0e-5)
@@ -78,7 +76,7 @@ def get_mesh(ffm, rods=False) :
     """
     cm = [10.0*i for i in range(8)]
     fm = [ffm]*7
-    mt = [1, 1, 2, 3, 4, 5, 1]
+    mt = [0, 1, 2, 3, 4, 5, 0]
     mesh = Mesh1D.Create(fm, cm, mt)
     return mesh
 
@@ -117,9 +115,12 @@ def fill_kinetics(mat):
     return mat
  
     
-def get_control_materials(a1=1.0, a2=0.25, a3=1.0, a4=0.25, a5=1.0):
+def get_control_materials(a1=1.0, a2=0.25, a3=1.0, a4=0.25, a5=1.0, reflect=1.0):
     mat = KineticsMaterial.Create(6, 2, 8, "CONTROL")
-    fill_water(0, mat)
+    if reflect==1.0:
+        fill_water(0, mat)
+    else:
+        fill_fuel(0, mat, withdrawn_fraction=1.0)
     fill_fuel(1, mat, withdrawn_fraction=a1)  
     fill_fuel(2, mat, withdrawn_fraction=a2)  
     fill_fuel(3, mat, withdrawn_fraction=a3) 
@@ -127,17 +128,16 @@ def get_control_materials(a1=1.0, a2=0.25, a3=1.0, a4=0.25, a5=1.0):
     fill_fuel(5, mat, withdrawn_fraction=a5)
     fill_kinetics(mat)
     mat.finalize()
-
     return mat
 
 def get_rods_in_materials():
     mat = KineticsMaterial.Create(6, 2, 8, "RODS_IN")
     fill_water(0, mat)
-    fill_fuel(1, mat, withdrawn_fraction=1.00)  
-    fill_fuel(2, mat, withdrawn_fraction=0.25)  
-    fill_fuel(3, mat, withdrawn_fraction=1.00) 
-    fill_fuel(4, mat, withdrawn_fraction=0.25)
-    fill_fuel(5, mat, withdrawn_fraction=1.00)
+    fill_fuel(1, mat, withdrawn_fraction=0.00)  
+    fill_fuel(2, mat, withdrawn_fraction=0.00)  
+    fill_fuel(3, mat, withdrawn_fraction=0.00) 
+    fill_fuel(4, mat, withdrawn_fraction=0.00)
+    fill_fuel(5, mat, withdrawn_fraction=0.00)
     fill_kinetics(mat)
     mat.finalize()
 
@@ -146,11 +146,11 @@ def get_rods_in_materials():
 def get_rods_out_materials():
     mat = KineticsMaterial.Create(6, 2, 8, "RODS_OUT")
     fill_water(0, mat)
-    fill_fuel(1, mat, withdrawn_fraction=1.00)  
-    fill_fuel(2, mat, withdrawn_fraction=0.25)  
-    fill_fuel(3, mat, withdrawn_fraction=1.00) 
-    fill_fuel(4, mat, withdrawn_fraction=0.30)
-    fill_fuel(5, mat, withdrawn_fraction=1.00)
+    fill_fuel(1, mat, withdrawn_fraction=0.05)  
+    fill_fuel(2, mat, withdrawn_fraction=0.00)  
+    fill_fuel(3, mat, withdrawn_fraction=0.00) 
+    fill_fuel(4, mat, withdrawn_fraction=0.00)
+    fill_fuel(5, mat, withdrawn_fraction=0.00)
     fill_kinetics(mat)
     mat.finalize()
     return mat
@@ -158,7 +158,7 @@ def get_rods_out_materials():
 def get_materials() :
     """ Create the two group cross sections for the reference slab problem
     """
-    times = [2.0, 4.0, 10.0, 12.0]
+    times = [2.0, 3.0, 40.0, 41.0, 60.0]
     mat0 = get_rods_in_materials()
     mat1 = get_rods_out_materials()
     mat2 = get_rods_in_materials()
@@ -166,6 +166,7 @@ def get_materials() :
     mats.push_back(mat0)
     mats.push_back(mat1)
     mats.push_back(mat1)
+    mats.push_back(mat2)
     mats.push_back(mat2)
     mat = LinearMaterial.Create(times, mats)
     return mat
@@ -288,7 +289,7 @@ def run_transient():
     #return
     ic = manager.state()   
     print("keff =", ic.eigenvalue())
-    return
+
     mat.set_eigenvalue(ic.eigenvalue())
     mat.update(0, 0, 1, False)
     # normalize state.
@@ -297,7 +298,7 @@ def run_transient():
     ic.scale(P0/F)
 
     # TRANSIENT
-    inp.put_int("ts_max_steps",                   10000)
+    inp.put_int("ts_max_steps",                   100000)
     inp.put_int("ts_scheme",                      Time1D.BDF2)
     inp.put_int("ts_output",                      0)
     inp.put_dbl("ts_step_size",                   0.1)
@@ -357,14 +358,14 @@ precursors (8 group), power (core)"""
     print("MAX POWER = ", max(powers))
     print("FINAL POWER = ", powers[-1], times[-1])
     pickle.dump(data, open('transient_0_01s.p', 'wb'))
-    plt.plot(times, powers)
+    plt.semilogy(times, powers)
     plt.show()
     
 if __name__ == "__main__":
     solvers.Manager.initialize(sys.argv)
-    #run_transient()
+    run_transient()
    #mat = get_materials()
    # mat.display()
    # make_material_table()
-    print(compute_worth())
+    #print(compute_worth())
     solvers.Manager.finalize()
