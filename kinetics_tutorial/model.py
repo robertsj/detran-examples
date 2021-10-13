@@ -5,9 +5,11 @@ Slab reactor with five assemblies.  Reflected on
 both sides. 
 
 | R  | A1 | A2 | A3 | A4 | A5 | R  |
-0    10   20   30   40   50   60   70
+0    10   20   30   40   50   60   70 cm
 
 """
+
+
 from detran import *
 import pickle
 

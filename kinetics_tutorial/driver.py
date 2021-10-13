@@ -64,7 +64,7 @@ def run_transient():
     #return
     ic = manager.state()   
     print("keff =", ic.eigenvalue())
-    return
+    #return
     mat.set_eigenvalue(ic.eigenvalue())
     mat.update(0, 0, 1, False)
     # normalize state.
