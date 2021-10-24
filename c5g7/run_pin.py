@@ -20,10 +20,10 @@ from plot_utils import *
 def run() :
 
   #-----------------------------------------------------------------------------#
-  # Input 
+  # Input
   #-----------------------------------------------------------------------------#
   inp = InputDB.Create()
-  inp.put_str("equation",                       "dd")
+  inp.put_str("equation",                       "diffusion")
   inp.put_str("problem_type",                   "eigenvalue")
   inp.put_int("number_groups",                  7)
   #
@@ -51,20 +51,19 @@ def run() :
   inp.put_str("bc_south",                       "reflect")
   inp.put_str("bc_north",                       "reflect")
   #
-  #inp.put_str("quad_type",                      "quadruplerange")
   inp.put_int("quad_number_polar_octant",       5)
   inp.put_int("quad_number_azimuth_octant",     10)
   #
   db = InputDB.Create("callow_db")
   db.put_dbl("linear_solver_atol",              1e-9);
   db.put_dbl("linear_solver_rtol",              1e-9);
-  db.put_str("linear_solver_type",              "petsc");
+  #db.put_str("linear_solver_type",              "petsc");
   db.put_int("linear_solver_maxit",             5000);
   db.put_int("linear_solver_gmres_restart",     30);
   db.put_int("linear_solver_monitor_level",     0);
-  db.put_str("pc_type",                         "petsc_pc");
-  db.put_str("petsc_pc_type",                   "lu");
-  db.put_str("eigen_solver_type",               "slepc");
+  #db.put_str("pc_type",                         "petsc_pc");
+  #db.put_str("petsc_pc_type",                   "lu");
+  #db.put_str("eigen_solver_type",               "slepc");
   db.put_int("eigen_solver_monitor_level",      2);
   inp.put_spdb("inner_solver_db",               db)
   inp.put_spdb("inner_pc_db",                   db)
