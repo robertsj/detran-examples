@@ -421,7 +421,7 @@ if __name__ == "__main__":
     #print iters
     data = pickle.load(open('convergence_data.p', 'rb'))
     #print data
-    run(data["tols"], tol)
-    #data = pickle.load(open('Xdata_1e-06_8.p', 'rb'))
+    #run(data["tols"], tol)
+    data = pickle.load(open('Xdata_1e-06_8.p', 'rb'))
     #print data
-    #print_table(data, tol)
+    print_table(data, tol)
