@@ -30,6 +30,7 @@ def get_input() :
     inp.put_str("equation", "dd")
     inp.put_int("store_angular_flux", 0)
     inp.put_int("store_current", 0)
+    inp.put_dbl("cmfd_relaxation", 1.0)
     inp.put_str("problem_type", "fixed")
     inp.put_int("number_groups", 7)
     inp.put_str("inner_solver", "SI")
@@ -139,6 +140,7 @@ def set_solver(type, inp, tol) :
         inp.put_str("outer_solver", "GMRES")
     elif type[1] == 2 :
         inp.put_str("outer_solver", "CMFD")
+        inp.put_int("store_current", 1)
     else :
         error("invalid outer")  
     inp.put_dbl("outer_tolerance", tol);
@@ -415,11 +417,11 @@ if __name__ == "__main__":
     #run_reference() 
     #flux_norm_vs_pin_power()
     #plot_flux_norm_vs_pin_power()
-    data = run_convergence(tol)
+    #data = run_convergence(tol)
     #print iters
-    #data = pickle.load(open('convergence_data.p', 'rb'))
+    data = pickle.load(open('convergence_data.p', 'rb'))
     #print data
-    #run(data["tols"], tol)
+    run(data["tols"], tol)
     #data = pickle.load(open('Xdata_1e-06_8.p', 'rb'))
     #print data
     #print_table(data, tol)
