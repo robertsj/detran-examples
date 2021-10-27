@@ -30,7 +30,7 @@ def fill_water(m, mat):
     mat.set_sigma_s(m, 1, 1,  S_in)
     mat.set_sigma_f(m, 1,     F)
     
-def fill_fuel(m, mat, wf):
+def fill_fuel(m, mat, withdrawn_fraction):
 
     D, T, A, S_in, S_out, F = compute_sigma(D=1.3, A=0.0105, S_out=0.022, F=0.003)
     mat.set_diff_coef(m, 0,   D)
@@ -42,7 +42,7 @@ def fill_fuel(m, mat, wf):
     mat.set_chi(m, 0,         1.0)
     mat.set_nu(m,  0,         1.0)
 
-    D, T, A, S_in, S_out, F = compute_sigma(D=0.5, A=0.164-0.05*wf, S_out=0.0, F=0.19)
+    D, T, A, S_in, S_out, F = compute_sigma(D=0.5, A=0.164-0.05*withdrawn_fraction, S_out=0.0, F=0.19)
     mat.set_diff_coef(m, 1,   D)
     mat.set_sigma_t(m, 1,     T) 
     mat.set_sigma_a(m, 1,     A) 
@@ -91,7 +91,7 @@ def get_rods_out_materials():
     mat.finalize()
     return mat
 
-def get_materials() :
+def get_ramp_materials() :
     """ Create the two group cross sections for the reference slab problem
     """
     #   0   0   1    1    0    
@@ -100,7 +100,6 @@ def get_materials() :
     mat0 = get_rods_in_materials()
     mat1 = get_rods_out_materials()
     mats = vec_material()
-    mats.push_back(mat0)
     mats.push_back(mat0)
     mats.push_back(mat1)
     mats.push_back(mat1)

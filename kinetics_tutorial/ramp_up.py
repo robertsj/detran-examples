@@ -1,22 +1,28 @@
-"""
-1-D Slab Reactor
-
-Slab reactor with five assemblies.  Reflected on 
-both sides. 
-
-| R  | A1 | A2 | A3 | A4 | A5 | R  |
-0    10   20   30   40   50   60   70 cm
-
-"""
-
 from detran import *
 import pickle
 
-from slab_materials import get_ramp_materials
+from slab_materials import *
 from input_parameters import get_input
 
+def get_ramp_materials() :
+    """ Create the two group cross sections for the reference slab problem
+    """
+    #   0   0   1    1    0    
+    #   0---2^^^4---10vvv12----\\\
+    times = [2.0, 4.0, 10.0, 12.0]
+    mat0 = get_rods_in_materials()
+    mat1 = get_rods_out_materials()
+    mats = vec_material()
+    mats.push_back(mat0)
+    mats.push_back(mat1)
+    mats.push_back(mat1)
+    mats.push_back(mat0)
+    mat = LinearMaterial.Create(times, mats)
+    return mat
+
 def get_mesh(cells_per_assembly=10) :
-    """ Return the 1-D Mesh
+    """ Get the 5-assembly (with reflectors) mesh.  Check the cells per assembly
+        is sane for the coarse mesh factor.
     """
     cm = [0.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0]
     fm = [cells_per_assembly]*7
@@ -24,53 +30,10 @@ def get_mesh(cells_per_assembly=10) :
     mesh = Mesh1D.Create(fm, cm, mt)
     return mesh
 
-def compute_worth():
-    inp = get_input()
-    mesh = get_mesh(50)
-    mat = get_materials()
-    
-    mat.update(0.0, 0, 1, False)
-    manager = Eigen1D(inp, downcast(mat), mesh)
-    manager.solve() 
-    k_in = manager.state().eigenvalue()
-    
-    mat.update(10.0, 0, 1, False)
-    manager = Eigen1D(inp, downcast(mat), mesh)
-    manager.solve() 
-    k_out = manager.state().eigenvalue()
-    return (k_out-k_in)/k_in, mat.beta_total(0)
-    
-def compute_beta_eff():
-    
-    mat = get_materials()
-    mat.update(0.0, 0, 1, False)
-    mesh = get_mesh(50)
-
-    # Compute phi
-    inp = get_input()
-    inp.put_int("adjoint", 0)
-    manager = Eigen1D(inp, downcast(mat), mesh)
-    manager.solve() 
-    F = manager.state() 
-    
-    # Compute phi
-    inp.put_int("adjoint", 1)
-    manager = Eigen1D(inp, downcast(mat), mesh)
-    manager.solve() 
-    A = manager.state()
-
-    num = 0
-    den = 0
-    mat_map = mesh.mesh_map("MATERIAL")
-    for i in range(mesh.number_cells()):
-        m = mat_map[i]
-        tmp = A.phi(0)[i]*mat.nu_sigma_f(m, 0)*F.phi(0)[i]
-        num +=  beta
-              
-    beta = mat.beta_total(0)
-   
-    
 def compute_power(mesh, mat, state):
+    """ Integrate the core fission rate, and multiply by the energy per fission
+        to compute the core power.
+    """
     matmap = mesh.mesh_map("MATERIAL");
     F = 0.0;
     for i in range(0, mesh.number_cells()) :
@@ -82,40 +45,38 @@ def compute_power(mesh, mat, state):
     return F
 
 
+def run_steady_state(inp, mesh, mat):
 
-    
-def run_transient():
-    
-    # STEADY STATE
-    inp = get_input()
-    inp.put_int("adjoint", 0)
-    mesh = get_mesh(10)
-    mat = get_ramp_materials()
+    # The material is a time-dependent one, so it must be updated
+    # for the initial time *and* be forced to exclude the "synthetic"
+    # components.
     mat.update(0.0, 0, 1, False)
-    print(type(mat))
     manager = Eigen1D(inp, downcast(mat), mesh)
     manager.solve() 
+    print("keff =", manager.state().eigenvalue())
 
-    #return
-    ic = manager.state()   
-    print("keff =", ic.eigenvalue())
-
+    ic = manager.state()
     mat.set_eigenvalue(ic.eigenvalue())
     mat.update(0, 0, 1, False)
-    # normalize state.
+
     F = compute_power(mesh, mat, ic)
     P0 =  100 # W
     ic.scale(P0/F)
 
-    # TRANSIENT
-    inp.put_int("ts_max_steps",                   100000)
-    inp.put_int("ts_scheme",                      Time1D.BDF2)
-    inp.put_int("ts_output",                      0)
-    inp.put_dbl("ts_step_size",                   0.1)
-    inp.put_dbl("ts_final_time",                  60.0)
-    inp.put_int("ts_max_iters",                   1)
-    inp.put_dbl("ts_tolerance",                   1.0e-5)
+    return ic
     
+def run_transient(case='diffusion'):
+    
+    inp = get_input(case)
+    # There is no feedback, so there is no need to iterate.  If the solver 
+    # tolerances are looser than the time stepper tolerance, additional
+    # iterations *could* be done, so just stop that and adjust the right tolerance!
+    inp.put_int("ts_max_iters", 1)
+    mesh = get_mesh(10)
+    mat = get_ramp_materials()
+
+    ic = run_steady_state(inp, mesh, mat)
+
     
     data = {}
     data['times'] = []
@@ -170,12 +131,7 @@ precursors (8 group), power (core)"""
     pickle.dump(data, open('transient_0_01s.p', 'wb'))
     plt.semilogy(times, powers)
     #plt.show()
-    
-if __name__ == "__main__":
-    solvers.Manager.initialize(sys.argv)
-    run_transient()
-   #mat = get_materials()
-   # mat.display()
-   # make_material_table()
-    #print(compute_worth())
-    solvers.Manager.finalize()
+
+if __name__ == '__main__':
+
+    run_transient('diffusion')
