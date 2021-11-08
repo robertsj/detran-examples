@@ -9,7 +9,7 @@ import pickle
 
 def compute_sigma(D, A, S_out, F):
     T = 1.0/(3.0*D)
-    S_in = T - A - F - S_out 
+    S_in = T - A - S_out 
     return D, T, A, S_in, S_out, F 
 
 def fill_water(m, mat):
@@ -91,21 +91,7 @@ def get_rods_out_materials():
     mat.finalize()
     return mat
 
-def get_ramp_materials() :
-    """ Create the two group cross sections for the reference slab problem
-    """
-    #   0   0   1    1    0    
-    #   0---2^^^4---10vvv12----\\\
-    times = [2.0, 4.0, 10.0, 12.0]
-    mat0 = get_rods_in_materials()
-    mat1 = get_rods_out_materials()
-    mats = vec_material()
-    mats.push_back(mat0)
-    mats.push_back(mat1)
-    mats.push_back(mat1)
-    mats.push_back(mat0)
-    mat = LinearMaterial.Create(times, mats)
-    return mat
+
 
 def make_material_table():
     mat = KineticsMaterial.Create(3, 2, 8, "Material Tables")
