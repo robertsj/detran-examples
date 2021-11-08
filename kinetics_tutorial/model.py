@@ -172,10 +172,13 @@ precursors (8 group), power (core)"""
     #plt.show()
     
 if __name__ == "__main__":
+
     solvers.Manager.initialize(sys.argv)
     run_transient()
    #mat = get_materials()
    # mat.display()
    # make_material_table()
     #print(compute_worth())
+
+    
     solvers.Manager.finalize()
