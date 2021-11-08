@@ -44,27 +44,26 @@ def compute_power(mesh, mat, state):
     F *=  200 * 1.609e-13 # (f/s) * (MeV/f) * (J/MeV)
     return F
 
+def run_eigen(case='diffusion'):
+    inp = get_input(case)
+    mesh = get_mesh(3)
+    mat = get_rods_in_materials()
+    manager = Eigen1D(inp, downcast(mat), mesh)
+    manager.solve() 
+    return manager.state(), mat
 
 def run_steady_state(inp, mesh, mat):
-
-    # The material is a time-dependent one, so it must be updated
-    # for the initial time *and* be forced to exclude the "synthetic"
-    # components.
     mat.update(0.0, 0, 1, False)
     manager = Eigen1D(inp, downcast(mat), mesh)
     manager.solve() 
-    print("keff =", manager.state().eigenvalue())
-
     ic = manager.state()
     mat.set_eigenvalue(ic.eigenvalue())
     mat.update(0, 0, 1, False)
-
     F = compute_power(mesh, mat, ic)
     P0 =  100 # W
     ic.scale(P0/F)
-
     return ic
-    
+
 def run_transient(case='diffusion'):
     
     inp = get_input(case)
@@ -128,10 +127,11 @@ precursors (8 group), power (core)"""
     ts.solve(ic)
     print("MAX POWER = ", max(powers))
     print("FINAL POWER = ", powers[-1], times[-1])
+    np.savetxt('powers_'+case+'.txt', np.array([times,powers]).T)
     pickle.dump(data, open('transient_0_01s.p', 'wb'))
     plt.semilogy(times, powers)
-    #plt.show()
+    plt.show()
 
 if __name__ == '__main__':
-
-    run_transient('diffusion')
+    #ic, mat = run_eigen('transport')
+    run_transient('transport_iso')
