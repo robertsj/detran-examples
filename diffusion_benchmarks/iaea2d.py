@@ -9,6 +9,8 @@ Argonne Code Center. Benchmark  Problem  Book. Technical Report ANL-7416
 Supplement 2, Argonne National Laboratory, 1977
 """
 
+import sys 
+
 from detran import *
 from diffusion_input import get_input
 import time
@@ -21,7 +23,7 @@ def get_material():
     removal values are adjusted for axial buckling.
     """
 
-    mat = Material.Create(4, 2, "IAEA-2D")
+    mat = Material(4, 2, "IAEA-2D")
     # Material 0
     mat.set_sigma_t(0, vec_dbl([0.030120, 0.080032]))
     mat.set_sigma_s(0, 1, 0, 0.02)
@@ -61,7 +63,7 @@ def get_mesh(num_div=1):
           1, 1, 0, 0, 0, 3, 3, 3, 3,
           0, 0, 0, 3, 3, 3, 3, 3, 3,
           3, 3, 3, 3, 3, 3, 3, 3, 3]
-    mesh = Mesh2D.Create(fm, fm, cm, cm, mt)
+    mesh = Mesh2D(fm, fm, cm, cm, mt)
     return mesh
 
 def run():
@@ -76,10 +78,11 @@ def run():
     t = time.time()
     solver.solve()
     state = solver.state()
-    print "elapsed = ", time.time()-t
+    print("elapsed = ", time.time()-t)
 
     return state.eigenvalue()
 
 if __name__ == "__main__":
-  Manager.initialize(sys.argv)
+  #Manager.initialize(sys.argv)
   run()
+  print("lala")

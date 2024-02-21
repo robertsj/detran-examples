@@ -8,7 +8,7 @@ def get_input(solver=None):
     """ Default parameters for solving quarter-core, diffusion eigenproblems.
     """
 
-    inp = InputDB.Create()
+    inp = InputDB()
     inp.put_int("number_groups",                      2)
     inp.put_int("dimension",                          2)
     inp.put_str("equation",                           "diffusion")
@@ -19,7 +19,7 @@ def get_input(solver=None):
     inp.put_int("eigen_max_iters",                    1000)
     ## TODO: callow
     inp.put_str("eigen_solver",                       "arnoldi")
-    db = InputDB.Create("callow_db")
+    db = InputDB("callow_db")
     # outer gmres parameters
     db.put_dbl("linear_solver_atol",                  1e-8);
     db.put_dbl("linear_solver_rtol",                  1e-8);
