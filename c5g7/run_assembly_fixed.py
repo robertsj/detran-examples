@@ -19,7 +19,7 @@ def run() :
     #-----------------------------------------------------------------------------#
     # Input 
     #-----------------------------------------------------------------------------#
-    inp = utilities.InputDB.Create()
+    inp = InputDB()
     inp.put_str("equation",                   "dd")
     inp.put_str("problem_type",               "eigenvalue")
     inp.put_int("number_groups",              7)
@@ -46,11 +46,11 @@ def run() :
     inp.put_str("bc_south",                   "vacuum")
     inp.put_str("bc_north",                   "vacuum")
     #
-    inp.put_str("quad_type",                  "chebyshevlegendre")
+    #inp.put_str("quad_type",                  "c-l")
     inp.put_int("quad_number_polar_octant",   n)
     inp.put_int("quad_number_azimuth_octant", n)
     #
-    solver_db = utilities.InputDB.Create("solver_db")
+    solver_db = InputDB("solver_db")
     solver_db.put_dbl("linear_solver_atol",              0.0);
     solver_db.put_dbl("linear_solver_rtol",              1e-8);
     solver_db.put_str("linear_solver_type",              "petsc");
@@ -58,7 +58,7 @@ def run() :
     solver_db.put_int("linear_solver_gmres_restart",     30);
     solver_db.put_int("linear_solver_monitor_level",     1);
     #
-    preconditioner_db = utilities.InputDB.Create("preconditioner_db")
+    preconditioner_db = InputDB("preconditioner_db")
     preconditioner_db.put_dbl("linear_solver_atol",              0.0);
     preconditioner_db.put_dbl("linear_solver_rtol",              0.1);
     preconditioner_db.put_str("linear_solver_type",              "petsc");
@@ -89,15 +89,15 @@ def run() :
     solver = Fixed2D(inp, mat, mesh)
     solver.setup()
     quad = solver.quadrature()
-    q_e = external_source.ConstantSource.Create(7, mesh, 1.0, quad)
+    q_e = ConstantSource(7, mesh, 1.0, quad)
     solver.set_source(q_e)
     solver.set_solver()
     t = time.time()
     solver.solve()
-    print "elapsed = ", time.time()-t
+    print("elapsed = ", time.time()-t)
     phi = np.asarray(solver.state().phi(0))
     #plot_mesh_function(mesh, phi)
 
 if __name__ == "__main__":
-  Manager.initialize(sys.argv)
+  #Manager.initialize(sys.argv)
   run()
