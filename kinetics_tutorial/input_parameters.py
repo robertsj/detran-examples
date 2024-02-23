@@ -2,10 +2,7 @@
 Consolidate input generation.
 """
 
-from detran import *
-import pickle
-
-from slab_materials import *
+from detran import InputDB, Time1D
 
 def get_input(case='diffusion'):
     inp = get_base_input()
@@ -23,7 +20,7 @@ def get_input(case='diffusion'):
     return inp
 
 def get_base_input() :
-    inp = utilities.InputDB.Create()
+    inp = InputDB()
     inp.put_int("number_groups",                  2)
     inp.put_int("dimension",                      1)
     inp.put_str("equation",                       "diffusion")
@@ -50,7 +47,7 @@ def get_base_input() :
     inp.put_int("inner_max_iters",                1000)
     inp.put_int("inner_print_level",              0)
     # gmres parameters
-    db = utilities.InputDB.Create("callow_db")
+    db = InputDB("callow_db")
     db.put_dbl("linear_solver_atol",              0.0)
     db.put_dbl("linear_solver_rtol",              1e-13)
     db.put_str("linear_solver_type",              "gmres")
@@ -70,9 +67,14 @@ def get_base_input() :
     inp.put_int("ts_output",                      0)
     inp.put_dbl("ts_step_size",                   0.05)
     inp.put_dbl("ts_final_time",                  60.0)
-    inp.put_int("ts_max_iters",                   10)
+    inp.put_int("ts_max_iters",                   1)
     inp.put_dbl("ts_tolerance",                   1.0e-5)
     inp.put_int("ts_discrete",                    0)
     inp.put_int("store_angular_flux",             0)
     
     return inp
+
+if __name__ == "__main__":
+
+    inp = get_base_input()
+    inp.display()

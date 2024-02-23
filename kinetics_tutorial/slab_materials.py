@@ -3,9 +3,8 @@ Materials for 1-D Transient Slab Problem
 """
 
 
-
-from detran import *
-import pickle
+import numpy as np 
+from detran import KineticsMaterial
 
 def compute_sigma(D, A, S_out, F):
     T = 1.0/(3.0*D)
@@ -66,8 +65,23 @@ def fill_kinetics(mat):
             mat.set_chi_d(m, i, 1, 0.0)
     return mat
 
+def get_materials(fraction_A2, fraction_A4):
+    assert 0.0 <= fraction_A2 <= 1.0, "fraction out of range!"
+    assert 0.0 <= fraction_A4 <= 1.0, "fraction out of range!"
+    mat = KineticsMaterial(6, 2, 8, "SLAB_MATERIAL")
+    fill_water(0, mat)
+    fill_fuel(1, mat, withdrawn_fraction=1.00)  
+    fill_fuel(2, mat, withdrawn_fraction=fraction_A2)  
+    fill_fuel(3, mat, withdrawn_fraction=1.00) 
+    fill_fuel(4, mat, withdrawn_fraction=fraction_A4)
+    fill_fuel(5, mat, withdrawn_fraction=1.00)
+    fill_kinetics(mat)
+    mat.finalize()
+    return mat
+
+
 def get_rods_in_materials():
-    mat = KineticsMaterial.Create(6, 2, 8, "RODS_IN")
+    mat = KineticsMaterial(6, 2, 8, "RODS_IN")
     fill_water(0, mat)
     fill_fuel(1, mat, withdrawn_fraction=1.00)  
     fill_fuel(2, mat, withdrawn_fraction=0.25)  
@@ -76,11 +90,10 @@ def get_rods_in_materials():
     fill_fuel(5, mat, withdrawn_fraction=1.00)
     fill_kinetics(mat)
     mat.finalize()
-
     return mat
 
 def get_rods_out_materials():
-    mat = KineticsMaterial.Create(6, 2, 8, "RODS_OUT")
+    mat = KineticsMaterial(6, 2, 8, "RODS_OUT")
     fill_water(0, mat)
     fill_fuel(1, mat, withdrawn_fraction=1.00)  
     fill_fuel(2, mat, withdrawn_fraction=0.25)  
@@ -94,7 +107,7 @@ def get_rods_out_materials():
 
 
 def make_material_table():
-    mat = KineticsMaterial.Create(3, 2, 8, "Material Tables")
+    mat = KineticsMaterial(3, 2, 8, "Material Tables")
     fill_water(0, mat)
     fill_fuel(1, mat, 1.0) # all out
     fill_fuel(2, mat, 0.0) # all in

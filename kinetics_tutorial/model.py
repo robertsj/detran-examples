@@ -9,22 +9,62 @@ both sides.
 
 """
 
+from detran import Mesh1D
+
+def get_core_mesh(cells_per_assembly=10) :
+    """ Get the 5-assembly (with reflectors) mesh.  Check the cells per assembly
+        is sane for the coarse mesh factor.
+    """
+    cm = [0.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0]
+    fm = [cells_per_assembly]*7
+    mt = [0, 1, 2, 3, 4, 5, 0]
+    mesh = Mesh1D(fm, cm, mt)
+    return mesh
+
+def get_assembly_mesh(cells_per_assembly=10) :
+    """ Get mesh for just one assembly. 
+    """
+    cm = [0.0, 10.0]
+    fm = [cells_per_assembly]
+    mt = [2]
+    mesh = Mesh1D(fm, cm, mt)
+    return mesh
+
+
+if __name__ == "__main__":
+
+    get_core_mesh(3).display()
+
 from detran import *
 import pickle
 
 from slab_materials import get_ramp_materials
 from input_parameters import get_input
 
-def get_mesh(cells_per_assembly=10) :
-    """ Return the 1-D Mesh
+def get_core_mesh(cells_per_assembly=10) :
+    """ Return a mesh for the whole core.
     """
     cm = [0.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0]
     fm = [cells_per_assembly]*7
     mt = [0, 1, 2, 3, 4, 5, 0]
-    mesh = Mesh1D.Create(fm, cm, mt)
+    mesh = Mesh1D(fm, cm, mt)
     return mesh
 
+def get_assembly_mesh(cells_per_assembly=10) :
+    """ Return the mesh for a single fuel assembly.
+    """
+    cm = [0.0, 10.0]
+    fm = [cells_per_assembly]*7
+    mt = [0, 1, 2, 3, 4, 5, 0]
+    mesh = Mesh1D(fm, cm, mt)
+    return mesh
+
+
 def compute_worth():
+    """ Compute reactivity difference between 
+    the rods in and rods out cases.
+    """
+
     inp = get_input()
     mesh = get_mesh(50)
     mat = get_materials()
