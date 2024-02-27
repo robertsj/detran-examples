@@ -15,7 +15,7 @@ def get_linear_source(mesh, quad) :
     #   0   0   1    
     #   0---1---1.1
     times = [1.0, 1.1]
-    source0 =  ConstantSource(2, mesh, 1e-14, quad)
+    source0 =  ConstantSource(2, mesh, 1e8, quad)
     source1 =  ConstantSource(2, mesh, 1e8, quad)
     sources = vec_source()
     sources.push_back(source0)
@@ -46,27 +46,25 @@ def run_eigen(case='diffusion', fractions=[0, 0]):
     return manager.state(), mat
 
 def run_steady_state(inp, mesh, mat):
-    mat.update(0.0, 0, 1, False)
-    manager = Eigen1D(inp, mat, mesh)
+    tmat = TimeIndependentMaterial(mat)
+    tmat.update(0.0, 0, 1, False)
+    manager = Eigen1D(inp, tmat, mesh)
     manager.solve() 
     ic = manager.state()
-    mat.set_eigenvalue(ic.eigenvalue())
-    mat.update(0, 0, 1, False)
-    F = compute_power(mesh, mat, ic)
+    tmat.set_eigenvalue(ic.eigenvalue())
+    tmat.update(0, 0, 1, False)
+    F = compute_power(mesh, tmat, ic)
     P0 =  100 # W
     ic.scale(P0/F)
     return ic
 
-def run_transient(inp, mesh, mat):
+def run_transient(inp, mesh, mat, verbose=False):
     
     #inp = get_input(case)
     inp.put_int("ts_max_iters", 1)
     # mesh = get_core_mesh(10)
     # mat = get_materials(*fractions)
     tmat = TimeIndependentMaterial(mat)
-
-
-    
     data = {}
     data['times'] = []
     data['powers'] = []
@@ -109,7 +107,7 @@ precursors (8 group), power (core)"""
 
         times.append(t)
         powers.append(P)
-        if step % 10 == 0:
+        if verbose and step % 10 == 0:
             print( "{:8.4} {:8.4}".format(t, P))
     
 
