@@ -14,7 +14,7 @@ from plot_utils import *
 #-----------------------------------------------------------------------------#
 # Input
 #-----------------------------------------------------------------------------#
-inp = InputDB.Create()
+inp = InputDB()
 inp.put_str("equation",                "diffusion")
 inp.put_str("problem_type",                   "eigenvalue")
 inp.put_int("number_groups",            7)
@@ -42,7 +42,7 @@ mesh = pins[3].mesh()
 start = time.time()
 solver = Eigen2D(inp, mat, mesh)
 solver.solve()
-print "elapsed = ", time.time() - start
+print("elapsed = ", time.time() - start)
 
 #-----------------------------------------------------------------------------#
 # Plot
@@ -54,4 +54,4 @@ try :
   silo.write_scalar_flux(state)
   silo.finalize()
 except :
-  print "Silo error?"
+  print("Silo error?")

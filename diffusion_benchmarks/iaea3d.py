@@ -9,7 +9,7 @@ Reference:
   Benchmark Problem Book, ANL-7416, Suppl. 2, Argonne National
   Laboratory (1977)
 """
-
+import sys
 from detran import *
 from diffusion_input import get_input
 import time
@@ -19,7 +19,7 @@ def get_material():
     All absorption cross sections are simply put into the total.
     """
 
-    mat = Material.Create(6, 2, "IAEA-3D")
+    mat = Material(6, 2, "IAEA-3D")
     # Fuel 1
     mat.set_sigma_t(0, vec_dbl([0.03, 0.08]))
     mat.set_sigma_s(0, 1, 0, 0.02)
@@ -104,7 +104,7 @@ def get_mesh(num_div_xy=1, num_div_z=1):
         3, 3, 3, 3, 3, 3, 3, 3, 3,
         3, 3, 3, 3, 3, 3, 3, 3, 3
        ]
-    mesh = Mesh3D.Create(fmH, fmH, fmV, cmH, cmH, cmV, mt)
+    mesh = Mesh3D(fmH, fmH, fmV, cmH, cmH, cmV, mt)
     return mesh
 
 def run():
@@ -119,9 +119,9 @@ def run():
     t = time.time()
     solver.solve()
     state = solver.state()
-    print "elapsed = ", time.time()-t
+    print("elapsed = ", time.time()-t)
     return state.eigenvalue()
 
 if __name__ == "__main__":
-  Manager.initialize(sys.argv)
+  #Manager.initialize(sys.argv)
   run()

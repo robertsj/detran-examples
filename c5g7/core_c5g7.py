@@ -12,7 +12,7 @@ def get_core(number, flag) :
   """
 
   assemblies = get_assemblies(number, flag)
-  core       = Core.Create(3)
+  core       = Core(3)
   core.add_assembly(assemblies[0])
   core.add_assembly(assemblies[1])
   core.add_assembly(assemblies[2])
@@ -29,7 +29,7 @@ def get_large_core(number, flag) :
   """
 
   assemblies = get_assemblies(number, flag)
-  core       = Core.Create(7)
+  core       = Core(7)
   core.add_assembly(assemblies[0])
   core.add_assembly(assemblies[1])
   core.add_assembly(assemblies[2])
