@@ -7,7 +7,7 @@ from detran import Material
 def get_materials() :
 
   # Create the new database.
-  mat = Material.Create(7, 7, "C5G7")
+  mat = Material(7, 7, "C5G7")
 
   # --------------------------------------------
   # Material 0: UO2 fuel-clad

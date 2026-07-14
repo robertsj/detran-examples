@@ -15,7 +15,7 @@ def get_assemblies(number, flag) :
   pin0, pin1, pin2, pin3, pin4, pin5, pin6 = get_pins(number, flag)
 
   # Assembly 1 -- UO2
-  assem1 = Assembly.Create(17)
+  assem1 = Assembly(17)
   assem1.add_pincell(pin0)
   assem1.add_pincell(pin1)
   assem1.add_pincell(pin2)
@@ -43,7 +43,7 @@ def get_assemblies(number, flag) :
   assem1.finalize(pin_map1)
 
   # Assembly 2 - MOX
-  assem2 = Assembly.Create(17)
+  assem2 = Assembly(17)
   assem2.add_pincell(pin0)
   assem2.add_pincell(pin1)
   assem2.add_pincell(pin2)
@@ -71,7 +71,7 @@ def get_assemblies(number, flag) :
   assem2.finalize(pin_map2)
 
   # Assembly 3 - Moderator
-  assem3 = Assembly.Create(17)
+  assem3 = Assembly(17)
   assem3.add_pincell(pin0)
   assem3.add_pincell(pin1)
   assem3.add_pincell(pin2)

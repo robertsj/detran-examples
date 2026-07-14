@@ -18,7 +18,7 @@ def run() :
   #-----------------------------------------------------------------------------#
   # Input 
   #-----------------------------------------------------------------------------#
-  inp = InputDB.Create()
+  inp = InputDB()
   inp.put_str("equation",                       "dd")
   inp.put_str("problem_type",                   "eigenvalue")
   inp.put_int("number_groups",                  7)
@@ -50,7 +50,7 @@ def run() :
   inp.put_int("quad_number_polar_octant",       3)
   inp.put_int("quad_number_azimuth_octant",     6)
   #
-  db = InputDB.Create("callow_db")
+  db = InputDB("callow_db")
   db.put_dbl("linear_solver_atol",              1e-9);
   db.put_dbl("linear_solver_rtol",              1e-9);
   db.put_str("linear_solver_type",              "petsc");
@@ -81,7 +81,7 @@ def run() :
   start = time.time()
   solver = Eigen2D(inp, mat, mesh)
   solver.solve()
-  print "elapsed = ", time.time() - start
+  print("elapsed = ", time.time() - start)
   #-----------------------------------------------------------------------------#
   # Plot
   #-----------------------------------------------------------------------------#
@@ -93,9 +93,9 @@ def run() :
     silo.write_mesh_map("MATERIAL")
     silo.finalize()
   except :
-    print "Silo error?"
+    print("Silo error?")
 
 if __name__ == "__main__":
-  Manager.initialize(sys.argv)
+  #Manager.initialize(sys.argv)
   run()
-  Manager.finalize()
+  #Manager.finalize()

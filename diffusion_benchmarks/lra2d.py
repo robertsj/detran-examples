@@ -20,7 +20,7 @@ def get_material():
     removal values are adjusted for axial buckling.
     """
 
-    mat = Material.Create(5, 2, "LRA-2D")
+    mat = Material(5, 2, "LRA-2D")
     B = 1.e-4
     # Material 0
     mat.set_sigma_t(0,   vec_dbl([0.008252, 0.1003]))
@@ -78,7 +78,7 @@ def get_mesh(num_div=1):
           2, 2, 2, 3, 4, 4,
           2, 2, 2, 4, 4, 4,
           4, 4, 4, 4, 4, 4]
-    mesh = Mesh2D.Create(fm, fm, cm, cm, mt)
+    mesh = Mesh2D(fm, fm, cm, cm, mt)
     return mesh
 
 def run():
@@ -93,9 +93,9 @@ def run():
     t = time.time()
     solver.solve()
     state = solver.state()
-    print "elapsed = ", time.time()-t
+    print("elapsed = ", time.time()-t)
     return state.eigenvalue()
 
 if __name__ == "__main__":
-  Manager.initialize(sys.argv)
+  #Manager.initialize(sys.argv)
   run()

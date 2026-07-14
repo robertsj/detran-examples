@@ -19,7 +19,7 @@ def get_material():
     the total, since removal is total minus within group.
     """
 
-    mat = Material.Create(8, 2, "biblis")
+    mat = Material(8, 2, "biblis")
     # Material 0
     mat.set_sigma_t(0, vec_dbl([0.0272582, 0.0750580]))
     mat.set_sigma_s(0, 1, 0, 0.017754)
@@ -85,7 +85,7 @@ def get_mesh(num_div=1):
           0, 0, 0, 7, 3, 3, 2, 2, 2,
           3, 3, 3, 3, 2, 2, 2, 2, 2,
           2, 2, 2, 2, 2, 2, 2, 2, 2]
-    mesh = Mesh2D.Create(fm, fm, cm, cm, mt)
+    mesh = Mesh2D(fm, fm, cm, cm, mt)
     return mesh
 
 def run():
@@ -100,9 +100,9 @@ def run():
     t = time.time()
     solver.solve()
     state = solver.state()
-    print "elapsed = ", time.time()-t
+    print("elapsed = ", time.time()-t)
     return state.eigenvalue()
 
 if __name__ == "__main__":
-  Manager.initialize(sys.argv)
+  #Manager.initialize(sys.argv)
   run()

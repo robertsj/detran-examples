@@ -8,7 +8,7 @@ def plot_mesh_map(obj, map_key, edges=False) :
   # Get the map.
   m_map = np.asarray(obj.mesh_map(map_key))
   if len(m_map) == 0 :
-    print "Oops! Map has size zero!"
+    print("Oops! Map has size zero!")
     return
         
   # Reshape it.
@@ -36,7 +36,6 @@ def plot_flux(obj, f) :
   """
   # Reshape flux.
   f = f.reshape(obj.number_cells_x(), obj.number_cells_y())
-  #print f
   # Plot me. 
   x, y = mesh_axes(obj)
   X, Y = np.meshgrid(x, y)
