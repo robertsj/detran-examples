@@ -1,6 +1,9 @@
 import unittest
 
-from slab_reactor import run
+try:
+    from .slab_reactor import run
+except ImportError:
+    from slab_reactor import run
 
 class TestSlabReactor(unittest.TestCase):
 

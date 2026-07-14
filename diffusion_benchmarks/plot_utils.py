@@ -8,7 +8,7 @@ def plot_mesh_map(obj, map_key, edges=False) :
   # Get the map.
   m_map = np.asarray(obj.mesh_map(map_key))
   if len(m_map) == 0 :
-    print "Oops! Map has size zero!"
+    print("Oops! Map has size zero!")
     return
         
   # Reshape it.

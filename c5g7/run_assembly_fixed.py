@@ -5,11 +5,15 @@
 
 import numpy as np
 import time
-import sys
 from detran import *
-from assemblies_c5g7 import get_assemblies
-from pins_c5g7 import get_pins
-from material_c5g7 import get_materials
+try:
+  from .assemblies_c5g7 import get_assemblies
+  from .pins_c5g7 import get_pins
+  from .material_c5g7 import get_materials
+except ImportError:
+  from assemblies_c5g7 import get_assemblies
+  from pins_c5g7 import get_pins
+  from material_c5g7 import get_materials
 import cProfile
 
 def run() :

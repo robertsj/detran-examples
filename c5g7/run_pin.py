@@ -11,11 +11,15 @@
 
 import numpy as np
 import time
-import sys
 from detran import *
-from pins_c5g7 import get_pins
-from material_c5g7 import get_materials
-from plot_utils import *
+try:
+  from .pins_c5g7 import get_pins
+  from .material_c5g7 import get_materials
+  from .plot_utils import *
+except ImportError:
+  from pins_c5g7 import get_pins
+  from material_c5g7 import get_materials
+  from plot_utils import *
 
 def run() :
 

@@ -9,6 +9,8 @@ both sides.
 
 """
 
+import numpy as np
+import matplotlib.pyplot as plt
 from detran import Mesh1D
 
 def get_core_mesh(cells_per_assembly=10) :
@@ -38,8 +40,14 @@ if __name__ == "__main__":
 from detran import *
 import pickle
 
-from slab_materials import get_ramp_materials
-from input_parameters import get_input
+try:
+    from .ramp_up import get_ramp_materials, get_mesh
+    from .slab_materials import get_materials
+    from .input_parameters import get_input
+except ImportError:
+    from ramp_up import get_ramp_materials, get_mesh
+    from slab_materials import get_materials
+    from input_parameters import get_input
 
 def get_core_mesh(cells_per_assembly=10) :
     """ Return a mesh for the whole core.
@@ -67,7 +75,7 @@ def compute_worth():
 
     inp = get_input()
     mesh = get_mesh(50)
-    mat = get_materials()
+    mat = get_ramp_materials()
     
     mat.update(0.0, 0, 1, False)
     manager = Eigen1D(inp, downcast(mat), mesh)
@@ -82,7 +90,7 @@ def compute_worth():
     
 def compute_beta_eff():
     
-    mat = get_materials()
+    mat = get_ramp_materials()
     mat.update(0.0, 0, 1, False)
     mesh = get_mesh(50)
 
@@ -210,15 +218,10 @@ precursors (8 group), power (core)"""
     pickle.dump(data, open('transient_0_01s.p', 'wb'))
     plt.semilogy(times, powers)
     #plt.show()
-    
 if __name__ == "__main__":
 
-    solvers.Manager.initialize(sys.argv)
     run_transient()
    #mat = get_materials()
    # mat.display()
    # make_material_table()
     #print(compute_worth())
-
-    
-    solvers.Manager.finalize()

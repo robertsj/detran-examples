@@ -1,5 +1,9 @@
 import unittest
-import takeda_inserted, takeda_withdrawn
+
+try:
+    from . import takeda_inserted, takeda_withdrawn
+except ImportError:
+    import takeda_inserted, takeda_withdrawn
 
 class TestDiffusionBenchmarks(unittest.TestCase):
 

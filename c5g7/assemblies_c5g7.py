@@ -1,6 +1,9 @@
 # 2-D assembly definitions for the C5G7 benchmark
 
-from pins_c5g7 import *
+try:
+  from .pins_c5g7 import *
+except ImportError:
+  from pins_c5g7 import *
 from detran import *
 
 def get_assemblies(number, flag) :

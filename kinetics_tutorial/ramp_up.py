@@ -4,8 +4,12 @@ import matplotlib.pyplot as plt
 from detran import *
 import pickle
 
-from slab_materials import *
-from input_parameters import get_input
+try:
+    from .slab_materials import *
+    from .input_parameters import get_input
+except ImportError:
+    from slab_materials import *
+    from input_parameters import get_input
 
 def get_ramp_materials() :
     """ Create the two group cross sections for the reference slab problem

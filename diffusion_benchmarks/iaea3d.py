@@ -9,9 +9,11 @@ Reference:
   Benchmark Problem Book, ANL-7416, Suppl. 2, Argonne National
   Laboratory (1977)
 """
-import sys
 from detran import *
-from diffusion_input import get_input
+try:
+    from .diffusion_input import get_input
+except ImportError:
+    from diffusion_input import get_input
 import time
 
 def get_material():

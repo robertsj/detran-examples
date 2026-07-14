@@ -1,5 +1,9 @@
 import unittest
-import biblis2d, iaea2d, iaea3d, lra2d
+
+try:
+    from . import biblis2d, iaea2d, iaea3d, lra2d
+except ImportError:
+    import biblis2d, iaea2d, iaea3d, lra2d
 
 class TestDiffusionBenchmarks(unittest.TestCase):
 

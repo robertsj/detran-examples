@@ -2,7 +2,10 @@
 #
 # 2-D core definition for the C5G7 benchmark
 
-from assemblies_c5g7 import get_assemblies
+try:
+  from .assemblies_c5g7 import get_assemblies
+except ImportError:
+  from assemblies_c5g7 import get_assemblies
 from detran import *
 
 def get_core(number, flag) :
@@ -42,6 +45,5 @@ def get_large_core(number, flag) :
               2,2,2,2,2,2,2]
   core.finalize(core_map)
   return core
-
 
 

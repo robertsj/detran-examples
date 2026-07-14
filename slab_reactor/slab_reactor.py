@@ -31,7 +31,7 @@ def get_materials() :
     # Two-group data from 1-d coarse mesh benchmarks (Mosher, Ilas etc.)
 
     # Create the Materials object.
-    mat = Material.Create(4, 2, "slabreactor");
+    mat = Material(4, 2, "slabreactor");
 
     # ---------------------------
     # Material 0: Water
@@ -154,28 +154,28 @@ def get_mesh(geometry_id) :
 
   # Create the 1D mesh
   if   geometry_id == "assembly0" :
-    mesh = Mesh1D.Create(fm_assembly, cm_assembly, assem[0])
+    mesh = Mesh1D(fm_assembly, cm_assembly, assem[0])
   elif geometry_id == "assembly1" :
-    mesh = Mesh1D.Create(fm_assembly, cm_assembly, assem[1])
+    mesh = Mesh1D(fm_assembly, cm_assembly, assem[1])
   elif geometry_id == "assembly2" :
-    mesh = Mesh1D.Create(fm_assembly, cm_assembly, assem[2])
+    mesh = Mesh1D(fm_assembly, cm_assembly, assem[2])
   elif geometry_id == "assembly3" :
-    mesh = Mesh1D.Create(fm_assembly, cm_assembly, assem[3])
+    mesh = Mesh1D(fm_assembly, cm_assembly, assem[3])
   elif geometry_id == "core0" :
-    mesh = Mesh1D.Create(fm_core, cm_core, core_0)
+    mesh = Mesh1D(fm_core, cm_core, core_0)
   elif geometry_id == "core1" :
-    mesh = Mesh1D.Create(fm_core, cm_core, core_1)
+    mesh = Mesh1D(fm_core, cm_core, core_1)
   elif geometry_id == "core2" :
-    mesh = Mesh1D.Create(fm_core, cm_core, core_2)
+    mesh = Mesh1D(fm_core, cm_core, core_2)
   else :
-    print "invalid geometry selected."
+    print("invalid geometry selected.")
     exit()
 
   return mesh
 
 
 def get_input():
-    inp = InputDB.Create()
+    inp = InputDB()
     inp.put_str("problem_type",               "eigenvalue")
     inp.put_int("number_groups",              2)
     inp.put_str("equation",                   "dd")
@@ -214,5 +214,4 @@ def run():
     return cases, keffs
 
 if __name__ == "__main__":
-    Manager.initialize(sys.argv)
     run()

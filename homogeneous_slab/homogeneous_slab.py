@@ -4,6 +4,8 @@ a few different techniques.
 """
 
 from detran import *
+import numpy as np
+import matplotlib.pyplot as plt
 import time
 
 def get_input():
@@ -11,7 +13,7 @@ def get_input():
     """
 
     # Input
-    inp = InputDB.Create()
+    inp = InputDB()
     inp.put_str("problem_type",       "fixed")
     inp.put_int("number_groups",      1)
     inp.put_str("equation",           "dd")
@@ -27,7 +29,7 @@ def get_input():
     inp.put_int("quad_number_polar_octant",   1)
     inp.put_str("bc_west",                    "vacuum")
     #
-    db = InputDB.Create("callow_db")
+    db = InputDB("callow_db")
     db.put_dbl("linear_solver_atol",              1e-9);
     db.put_dbl("linear_solver_rtol",              1e-9);
     db.put_str("linear_solver_type",              "petsc");
@@ -44,11 +46,11 @@ def get_input():
 
 def get_mesh():
     # Mesh
-    mesh = Mesh1D.Create([200], [0.0, 100.0], [0])
+    mesh = Mesh1D([200], [0.0, 100.0], [0])
     return mesh
 
 def get_material(c=0.5):
-    mat = Material.Create(1, 1)
+    mat = Material(1, 1)
     mat.set_sigma_t(0, 0, 1.0)
     mat.set_sigma_s(0, 0, 0, c)
     mat.finalize()
@@ -61,18 +63,24 @@ def run():
     solver = Fixed1D(inp, mat, mesh)
     solver.setup()
     quad = solver.quadrature()
-    q_e = ConstantSource.Create(1, mesh, 1.0, quad)
+    q_e = ConstantSource(1, mesh, 1.0, quad)
     solver.set_source(q_e)
     solver.set_solver()
     start = time.time()
     solver.solve()
     state = solver.state()
     elapsed = (time.time() - start)
-    print elapsed, " seconds"
+    print(elapsed, " seconds")
 
-    plot_mesh_function(mesh, solver.state().phi(0))
+    phi = np.asarray(state.phi(0))
+    edges = np.concatenate(
+        ([0.0], np.cumsum([mesh.dx(i) for i in range(mesh.number_cells_x())]))
+    )
+    plt.stairs(phi, edges)
+    plt.xlabel("x")
+    plt.ylabel("scalar flux")
+    plt.show()
 
 
 if __name__ == "__main__":
-  Manager.initialize(sys.argv)
   run()

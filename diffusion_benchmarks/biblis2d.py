@@ -9,7 +9,10 @@ Reference:
 """
 
 from detran import *
-from diffusion_input import get_input
+try:
+    from .diffusion_input import get_input
+except ImportError:
+    from diffusion_input import get_input
 import time
 
 def get_material():

@@ -4,9 +4,14 @@ import matplotlib.pyplot as plt
 from detran import *
 import pickle
 
-from slab_materials import *
-from slab_geometry import get_core_mesh
-from input_parameters import get_input
+try:
+    from .slab_materials import *
+    from .slab_geometry import get_core_mesh
+    from .input_parameters import get_input
+except ImportError:
+    from slab_materials import *
+    from slab_geometry import get_core_mesh
+    from input_parameters import get_input
 
 
 def get_linear_source(mesh, quad) :
@@ -123,5 +128,7 @@ precursors (8 group), power (core)"""
     return times, powers
 
 if __name__ == '__main__':
-    #ic, mat = run_eigen("diffusion")
-    run_transient("diffusion", [0.0, 0.0])
+    inp = get_input("diffusion")
+    mesh = get_core_mesh(10)
+    mat = get_materials(0.0, 0.0)
+    run_transient(inp, mesh, mat)

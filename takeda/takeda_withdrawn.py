@@ -8,7 +8,7 @@ import time
 def run() :
 
   # Input
-  inp = InputDB.Create()
+  inp = InputDB()
   inp.put_str("problem_type",             "eigenvalue")
   inp.put_int("number_groups",            2)
   inp.put_int("dimension",                3)
@@ -48,7 +48,7 @@ def run() :
   inp.put_int("quad_number_azimuth_octant", 2)
   inp.put_int("quad_number_polar_octant",   2)
 
-  db = InputDB.Create("callow_db")
+  db = InputDB("callow_db")
   # outer gmres parameters
   db.put_dbl("linear_solver_atol",                  1e-8);
   db.put_dbl("linear_solver_rtol",                  1e-8);
@@ -78,10 +78,10 @@ def run() :
           1, 1, 1,
           1, 1, 1]
 
-  mesh = Mesh3D.Create(fm_x, fm_y, fm_z, cm_x, cm_y, cm_z, mt)
+  mesh = Mesh3D(fm_x, fm_y, fm_z, cm_x, cm_y, cm_z, mt)
 
   # Material
-  mat = Material.Create(3, 2)
+  mat = Material(3, 2)
   # 0. Core
   mat.set_sigma_t(0, 0,    2.23775e-01)
   mat.set_sigma_t(0, 1,    1.03864e-00)
@@ -114,13 +114,13 @@ def run() :
     io.write(mesh)
     io.close()
   except:
-    print "Error using HDF5---perhaps detran is not built with it."
+    print("Error using HDF5---perhaps detran is not built with it.")
 
   # Solve
   start = time.time()
   solver = Eigen3D(inp, mat, mesh)
   solver.solve()
-  print "elapsed = ", time.time() - start
+  print("elapsed = ", time.time() - start)
   state = solver.state()
 
   # Save fluxes
@@ -131,10 +131,9 @@ def run() :
     silo.write_scalar_flux(state)
     silo.finalize()
   except :
-    print "Error using Silo---perhaps detran is not built with it."
+    print("Error using Silo---perhaps detran is not built with it.")
 
   return state.eigenvalue()
 
 if __name__ == "__main__":
-  Manager.initialize(sys.argv)
   run()

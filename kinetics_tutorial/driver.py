@@ -1,4 +1,7 @@
-from model import *
+try:
+    from .ramp_up import *
+except ImportError:
+    from ramp_up import *
 
 
 def run_steady_state():
@@ -10,7 +13,7 @@ def run_steady_state():
 
     inp = get_input()
     mesh = get_mesh(10)
-    mat = get_control_materials(*[1., 1., 1., 1., 1., 1.])
+    mat = get_materials(1.0, 1.0)
 
     ## For k-inf with 100% withdrawn fuel, uncomment these lines
     # inp.put_str("bc_west", "reflect")
@@ -37,12 +40,12 @@ def run_steady_state():
     plt.figure(1)
     plt.plot(ic_f.phi(0))
     plt.plot(ic_f.phi(1))
-    plt.legend(['$\phi_{f}$', '$\phi_{t}$'])
+    plt.legend([r'$\phi_{f}$', r'$\phi_{t}$'])
     
     #plt.figure(2)
     #plt.plot(ic_a.phi(0))
     #plt.plot(ic_a.phi(1))
-    #plt.legend(['$\phi^+_{f}$', '$\phi^+_{t}$'])
+    #plt.legend([r'$\phi^+_{f}$', r'$\phi^+_{t}$'])
 
     plt.show()
     mat.display()
@@ -55,7 +58,7 @@ def run_transient():
     inp = get_input()
     inp.put_int("adjoint", 0)
     mesh = get_mesh(10)
-    mat = get_materials()
+    mat = get_ramp_materials()
     mat.update(0.0, 0, 1, False)
     print(type(mat))
     manager = Eigen1D(inp, downcast(mat), mesh)
