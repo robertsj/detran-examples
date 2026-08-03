@@ -5,62 +5,58 @@
 from detran import *
 import time
 
+def get_input():
+  solver_db = SolverDatabase(
+    linear=LinearSolver.gmres(
+      atol=1e-8,
+      rtol=1e-8,
+      max_iters=5000,
+      restart=30,
+      monitor_level=0,
+    ),
+    eigen_algorithm="gd",
+    eigen_monitor_level=0,
+  )
+  return eigenvalue_input(
+    groups=2,
+    dimension=3,
+    equation="dd",
+    boundary=("reflect", "vacuum", "reflect", "vacuum", "reflect", "vacuum"),
+    inner=IterationSolver.gmres(
+      max_iters=1,
+      tolerance=1e-6,
+      print_level=0,
+      print_interval=10,
+      use_pc=False,
+      pc_tolerance=1e-2,
+      pc_ilu_levels=0,
+      pc_type="none",
+    ),
+    outer=IterationSolver.gmres(
+      max_iters=0,
+      tolerance=1e-6,
+      print_level=0,
+      print_interval=2,
+      upscatter_cutoff=0,
+      use_pc=False,
+    ),
+    solver=EigenSolver.arnoldi(
+      max_iters=1000,
+      tolerance=1e-6,
+      monitor_level=2,
+      print_interval=1,
+    ),
+    quadrature=Quadrature(polar=2, azimuth=2),
+    solver_databases={
+      "inner_solver_db": solver_db,
+      "outer_solver_db": solver_db,
+      "eigen_solver_db": solver_db,
+    },
+  )
+
 def run() :
 
-  # Input
-  inp = InputDB()
-  inp.put_str("problem_type",             "eigenvalue")
-  inp.put_int("number_groups",            2)
-  inp.put_int("dimension",                3)
-  inp.put_str("equation",                 "dd")
-  # Inner solver
-  inp.put_str("inner_solver",             "GMRES")
-  inp.put_int("inner_max_iters",          1)
-  inp.put_dbl("inner_tolerance",          1e-6)
-  inp.put_int("inner_print_level",        0)
-  inp.put_int("inner_print_interval",     10)
-  inp.put_int("inner_use_pc",             0)
-  inp.put_dbl("inner_pc_tolerance",       1e-2)
-  inp.put_int("inner_pc_ilu_levels",      0)
-  inp.put_str("inner_pc_type",            "none")
-  # Outer solver
-  inp.put_str("outer_solver",             "GMRES")
-  inp.put_int("outer_max_iters",          0)
-  inp.put_dbl("outer_tolerance",          1e-6)
-  inp.put_int("outer_print_level",        0)
-  inp.put_int("outer_print_interval",     2)
-  inp.put_int("outer_upscatter_cutoff",   0)
-  inp.put_int("outer_use_pc",             0)
-  # Eigensolver
-  inp.put_str("eigen_solver",             "arnoldi")
-  inp.put_int("eigen_max_iters",          1000)
-  inp.put_dbl("eigen_tolerance",          1e-6)
-  inp.put_int("eigen_print_level",        2)
-  inp.put_int("eigen_print_interval",     1)
-  # Boundary
-  inp.put_str("bc_west",                  "reflect")
-  inp.put_str("bc_east",                  "vacuum")
-  inp.put_str("bc_south",                 "reflect")
-  inp.put_str("bc_north",                 "vacuum")
-  inp.put_str("bc_bottom",                "reflect")
-  inp.put_str("bc_top",                   "vacuum")
-  #
-  inp.put_int("quad_number_azimuth_octant", 2)
-  inp.put_int("quad_number_polar_octant",   2)
-
-  db = InputDB("callow_db")
-  # outer gmres parameters
-  db.put_dbl("linear_solver_atol",                  1e-8);
-  db.put_dbl("linear_solver_rtol",                  1e-8);
-  db.put_str("linear_solver_type",                  "gmres");
-  db.put_int("linear_solver_maxit",                 5000);
-  db.put_int("linear_solver_gmres_restart",         30);
-  db.put_str("eigen_solver_type",                   "gd");
-  db.put_int("eigen_solver_monitor_level",          0);
-  db.put_int("linear_solver_monitor_level",         0);
-  inp.put_spdb("inner_solver_db", db)
-  inp.put_spdb("outer_solver_db", db)
-  inp.put_spdb("eigen_solver_db", db)
+  inp = get_input()
 
   # Mesh
   cm_x = [0.0, 15.0, 20.0, 25.0]

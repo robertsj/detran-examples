@@ -24,53 +24,50 @@ def run() :
   #-----------------------------------------------------------------------------#
   # Input
   #-----------------------------------------------------------------------------#
-  inp = InputDB()
-  inp.put_str("equation",                       "dd")
-  inp.put_str("problem_type",                   "eigenvalue")
-  inp.put_int("number_groups",                  7)
-  #
-  inp.put_str("inner_solver",                   "SI")
-  inp.put_int("inner_max_iters",                1)
-  inp.put_dbl("inner_tolerance",                1e-9)
-  inp.put_int("inner_print_level",              0)
-  inp.put_int("inner_print_interval",           10)
-  #
-  inp.put_str("outer_solver",                   "GS")
-  inp.put_int("outer_max_iters",                1)
-  inp.put_dbl("outer_tolerance",                1e-9)
-  inp.put_int("outer_print_level",              0)
-  inp.put_int("outer_print_interval",           1)
-  #
-  inp.put_str("eigen_solver",                   "PI")
-  inp.put_int("eigen_max_iters",                1000)
-  inp.put_dbl("eigen_tolerance",                1e-9)
-  inp.put_int("eigen_print_level",              2)
-  inp.put_int("eigen_print_interval",           1)
-  inp.put_dbl("eigen_pi_omega",                 1.0)
-  #
-  inp.put_str("bc_west",                        "reflect")
-  inp.put_str("bc_east",                        "reflect")
-  inp.put_str("bc_south",                       "reflect")
-  inp.put_str("bc_north",                       "reflect")
-  #
-  inp.put_int("quad_number_polar_octant",       5)
-  inp.put_int("quad_number_azimuth_octant",     10)
-  #
-  db = InputDB("callow_db")
-  db.put_dbl("linear_solver_atol",              1e-9);
-  db.put_dbl("linear_solver_rtol",              1e-9);
-  db.put_str("linear_solver_type",              "petsc");
-  db.put_int("linear_solver_maxit",             5000);
-  db.put_int("linear_solver_gmres_restart",     30);
-  db.put_int("linear_solver_monitor_level",     0);
-  db.put_str("pc_type",                         "petsc_pc");
-  db.put_str("petsc_pc_type",                   "lu");
-  db.put_str("eigen_solver_type",               "slepc");
-  db.put_int("eigen_solver_monitor_level",      2);
-  inp.put_spdb("inner_solver_db",               db)
-  inp.put_spdb("inner_pc_db",                   db)
-  inp.put_spdb("outer_solver_db",               db)
-  inp.put_spdb("eigen_solver_db",               db)
+  callow_db = SolverDatabase(
+    linear=LinearSolver.gmres(
+      atol=1e-9,
+      rtol=1e-9,
+      max_iters=5000,
+      restart=30,
+      monitor_level=0,
+      pc_type="ilu0",
+      pc_side=1,
+    ),
+    eigen_algorithm="gd",
+    eigen_monitor_level=2,
+  )
+  inp = eigenvalue_input(
+    groups=7,
+    dimension=2,
+    equation="dd",
+    boundary="reflect",
+    inner=IterationSolver.source_iteration(
+      max_iters=1,
+      tolerance=1e-9,
+      print_level=0,
+      print_interval=10,
+    ),
+    outer=IterationSolver.gauss_seidel(
+      max_iters=1,
+      tolerance=1e-9,
+      print_level=0,
+      print_interval=1,
+    ),
+    solver=EigenSolver.power_iteration(
+      max_iters=1000,
+      tolerance=1e-9,
+      monitor_level=2,
+      print_interval=1,
+      omega=1.0,
+    ),
+    quadrature=Quadrature(polar=5, azimuth=10),
+    solver_databases={
+      "inner_solver_db": callow_db,
+      "inner_pc_db": callow_db,
+      "outer_solver_db": callow_db,
+    },
+  )
   #-----------------------------------------------------------------------------#
   # Material
   #-----------------------------------------------------------------------------#

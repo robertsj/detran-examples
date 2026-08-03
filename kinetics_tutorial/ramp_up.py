@@ -1,5 +1,8 @@
 import numpy as np
-import matplotlib.pyplot as plt
+try:
+    import matplotlib.pyplot as plt
+except ImportError:
+    plt = None
 
 from detran import *
 import pickle
@@ -73,11 +76,10 @@ def run_steady_state(inp, mesh, mat):
 
 def run_transient(case='diffusion'):
     
-    inp = get_input(case)
     # There is no feedback, so there is no need to iterate.  If the solver 
     # tolerances are looser than the time stepper tolerance, additional
     # iterations *could* be done, so just stop that and adjust the right tolerance!
-    inp.put_int("ts_max_iters", 1)
+    inp = get_input(case, input_overrides={"ts_max_iters": 1})
     mesh = get_mesh(10)
     mat = get_ramp_materials()
 
@@ -136,8 +138,9 @@ precursors (8 group), power (core)"""
     print("FINAL POWER = ", powers[-1], times[-1])
     np.savetxt('powers_'+case+'.txt', np.array([times,powers]).T)
     pickle.dump(data, open('transient_0_01s.p', 'wb'))
-    plt.semilogy(times, powers)
-    plt.show()
+    if plt is not None:
+        plt.semilogy(times, powers)
+        plt.show()
 
 if __name__ == '__main__':
     #ic, mat = run_eigen("diffusion")

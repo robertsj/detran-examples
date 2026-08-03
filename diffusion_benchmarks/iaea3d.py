@@ -11,9 +11,9 @@ Reference:
 """
 from detran import *
 try:
-    from .diffusion_input import get_input
+    from .diffusion_input import get_problem
 except ImportError:
-    from diffusion_input import get_input
+    from diffusion_input import get_problem
 import time
 
 def get_material():
@@ -111,18 +111,15 @@ def get_mesh(num_div_xy=1, num_div_z=1):
 
 def run():
 
-    inp = get_input()
-    inp.put_int("dimension", 3)
     mat = get_material()
     mesh = get_mesh(2, 2)
 
     # Solver
-    solver = Eigen3D(inp, mat, mesh)
+    problem = get_problem(mesh, mat)
     t = time.time()
-    solver.solve()
-    state = solver.state()
+    result = problem.solve()
     print("elapsed = ", time.time()-t)
-    return state.eigenvalue()
+    return result.keff
 
 if __name__ == "__main__":
   #Manager.initialize(sys.argv)

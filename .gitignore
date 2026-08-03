@@ -18,5 +18,9 @@
 *.h5
 *.silo
 
+# Generated C5G7 example output
+c5g7/moc_plots*/
+c5g7/*.npz
+
 # Temporary saves
 *.py~

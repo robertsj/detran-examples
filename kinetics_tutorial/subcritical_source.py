@@ -1,5 +1,8 @@
 import numpy as np
-import matplotlib.pyplot as plt
+try:
+    import matplotlib.pyplot as plt
+except ImportError:
+    plt = None
 
 from detran import *
 import pickle
@@ -66,7 +69,6 @@ def run_steady_state(inp, mesh, mat):
 def run_transient(inp, mesh, mat, verbose=False):
     
     #inp = get_input(case)
-    inp.put_int("ts_max_iters", 1)
     # mesh = get_core_mesh(10)
     # mat = get_materials(*fractions)
     tmat = TimeIndependentMaterial(mat)

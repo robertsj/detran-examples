@@ -17,20 +17,6 @@ except ImportError:
 
 def run():
   #-----------------------------------------------------------------------------#
-  # Input
-  #-----------------------------------------------------------------------------#
-  inp = InputDB()
-  inp.put_str("equation",                       "diffusion")
-  inp.put_str("problem_type",                   "eigenvalue")
-  inp.put_int("number_groups",                  7)
-  inp.put_str("bc_west",                        "reflect")
-  inp.put_str("bc_east",                        "reflect")
-  inp.put_str("bc_south",                       "reflect")
-  inp.put_str("bc_north",                       "reflect")
-  inp.put_int("eigen_max_iters",                1000)
-  inp.put_dbl("eigen_tolerance",                1e-9)
-
-  #-----------------------------------------------------------------------------#
   # Material
   #-----------------------------------------------------------------------------#
   mat = get_materials()
@@ -45,22 +31,27 @@ def run():
   # Solve
   #-----------------------------------------------------------------------------#
   start = time.time()
-  solver = Eigen2D(inp, mat, mesh)
-  solver.solve()
+  problem = DiffusionEigenvalue(
+    mesh=mesh,
+    materials=mat,
+    boundary="reflect",
+    solver=EigenSolver.arnoldi(max_iters=1000, tolerance=1e-9),
+  )
+  result = problem.solve()
   print("elapsed = ", time.time() - start)
 
   #-----------------------------------------------------------------------------#
   # Plot
   #-----------------------------------------------------------------------------#
   try :
-    state = solver.state()
+    state = result.state
     silo = SiloOutput(mesh)
     silo.initialize("c5g7pin.silo")
     silo.write_scalar_flux(state)
     silo.finalize()
   except :
     print("Silo error?")
-  return solver.state().eigenvalue()
+  return result.keff
 
 
 if __name__ == "__main__":

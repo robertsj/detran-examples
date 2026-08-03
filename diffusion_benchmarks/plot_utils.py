@@ -1,10 +1,24 @@
 import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib
+try:
+  import matplotlib
+  import matplotlib.pyplot as plt
+except ImportError:
+  matplotlib = None
+  plt = None
+
+def has_matplotlib():
+  return plt is not None and matplotlib is not None
+
+def require_matplotlib():
+  if plt is None or matplotlib is None:
+    raise RuntimeError("matplotlib is required for diffusion benchmark plotting helpers")
 
 def plot_mesh_map(obj, map_key, edges=False) :
   """ Plot the mesh map.
   """
+  if not has_matplotlib():
+    print("matplotlib is not available; skipping plot.")
+    return
   # Get the map.
   m_map = np.asarray(obj.mesh_map(map_key))
   if len(m_map) == 0 :
@@ -34,6 +48,9 @@ def plot_mesh_map(obj, map_key, edges=False) :
 def plot_flux(obj, f) :
   """ Plot a flux or flux-shaped vector on the mesh."
   """
+  if not has_matplotlib():
+    print("matplotlib is not available; skipping plot.")
+    return
   # Reshape flux.
   f = f.reshape(obj.number_cells_x(), obj.number_cells_y())
   #print f

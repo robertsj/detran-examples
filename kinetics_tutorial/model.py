@@ -10,7 +10,10 @@ both sides.
 """
 
 import numpy as np
-import matplotlib.pyplot as plt
+try:
+    import matplotlib.pyplot as plt
+except ImportError:
+    plt = None
 from detran import Mesh1D
 
 def get_core_mesh(cells_per_assembly=10) :
@@ -95,15 +98,14 @@ def compute_beta_eff():
     mesh = get_mesh(50)
 
     # Compute phi
-    inp = get_input()
-    inp.put_int("adjoint", 0)
+    inp = get_input(adjoint=0)
     manager = Eigen1D(inp, downcast(mat), mesh)
     manager.solve() 
     F = manager.state() 
     
     # Compute phi
-    inp.put_int("adjoint", 1)
-    manager = Eigen1D(inp, downcast(mat), mesh)
+    adjoint_input = get_input(adjoint=1)
+    manager = Eigen1D(adjoint_input, downcast(mat), mesh)
     manager.solve() 
     A = manager.state()
 
@@ -135,8 +137,16 @@ def compute_power(mesh, mat, state):
 def run_transient():
     
     # STEADY STATE
-    inp = get_input()
-    inp.put_int("adjoint", 0)
+    inp = get_input(
+        adjoint=0,
+        time_stepper=TimeStepper.bdf2(
+            max_steps=100000,
+            step_size=0.1,
+            final_time=60.0,
+            max_iters=1,
+            tolerance=1.0e-5,
+        ),
+    )
     mesh = get_mesh(10)
     mat = get_ramp_materials()
     mat.update(0.0, 0, 1, False)
@@ -156,15 +166,6 @@ def run_transient():
     ic.scale(P0/F)
 
     # TRANSIENT
-    inp.put_int("ts_max_steps",                   100000)
-    inp.put_int("ts_scheme",                      Time1D.BDF2)
-    inp.put_int("ts_output",                      0)
-    inp.put_dbl("ts_step_size",                   0.1)
-    inp.put_dbl("ts_final_time",                  60.0)
-    inp.put_int("ts_max_iters",                   1)
-    inp.put_dbl("ts_tolerance",                   1.0e-5)
-    
-    
     data = {}
     data['times'] = []
     data['powers'] = []
@@ -216,8 +217,9 @@ precursors (8 group), power (core)"""
     print("MAX POWER = ", max(powers))
     print("FINAL POWER = ", powers[-1], times[-1])
     pickle.dump(data, open('transient_0_01s.p', 'wb'))
-    plt.semilogy(times, powers)
-    #plt.show()
+    if plt is not None:
+        plt.semilogy(times, powers)
+        #plt.show()
 if __name__ == "__main__":
 
     run_transient()

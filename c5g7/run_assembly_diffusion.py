@@ -22,32 +22,6 @@ except ImportError:
   from plot_utils import *
 def run():
   #-----------------------------------------------------------------------------#
-  # Input
-  #-----------------------------------------------------------------------------#
-  inp = InputDB()
-  inp.put_int("number_groups",                      7)
-  inp.put_int("dimension",                          2)
-  inp.put_str("equation",                           "diffusion")
-  inp.put_str("bc_west",                            "reflect")
-  inp.put_str("bc_east",                            "reflect")
-  inp.put_str("bc_south",                           "reflect")
-  inp.put_str("bc_north",                           "reflect")
-  inp.put_int("eigen_max_iters",                    1000)
-  ## TODO: callow
-  inp.put_str("eigen_solver",                       "arnoldi")
-  db = InputDB("callow_db")
-  # outer gmres parameters
-  db.put_dbl("linear_solver_atol",                  1e-8);
-  db.put_dbl("linear_solver_rtol",                  1e-8);
-  db.put_str("linear_solver_type",                  "gmres");
-  db.put_int("linear_solver_maxit",                 5000);
-  db.put_int("linear_solver_gmres_restart",         30);
-  db.put_str("eigen_solver_type",                   "gd");
-  db.put_int("eigen_solver_monitor_level",          0);
-  db.put_int("linear_solver_monitor_level",         0);
-  inp.put_spdb("outer_solver_db", db)
-  inp.put_spdb("eigen_solver_db", db)
-  #-----------------------------------------------------------------------------#
   # Material
   #-----------------------------------------------------------------------------#
   mat = get_materials()
@@ -64,20 +38,33 @@ def run():
   # Execute
   #-----------------------------------------------------------------------------#
   #Manager.initialize(sys.argv)
-  solver = Eigen2D(inp, mat, mesh)
+  problem = DiffusionEigenvalue(
+    mesh=mesh,
+    materials=mat,
+    boundary="reflect",
+    solver=EigenSolver.arnoldi(
+      max_iters=1000,
+      inner=LinearSolver.gmres(
+        atol=1e-8,
+        rtol=1e-8,
+        max_iters=5000,
+        restart=30,
+      ),
+    ),
+  )
   t = time.time()
-  solver.solve()
+  result = problem.solve()
   print("elapsed = ", time.time()-t)
   #-----------------------------------------------------------------------------#
   # Plot
   #-----------------------------------------------------------------------------#
-  state = solver.state()
+  state = result.state
   plot_flux(mesh, np.asarray(state.phi(0)))
   #-----------------------------------------------------------------------------#
   # Wrap Up
   #-----------------------------------------------------------------------------#
   #Manager.finalize()
-  return state.eigenvalue()
+  return result.keff
 
 
 if __name__ == "__main__":

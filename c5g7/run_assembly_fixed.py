@@ -23,60 +23,55 @@ def run() :
     #-----------------------------------------------------------------------------#
     # Input 
     #-----------------------------------------------------------------------------#
-    inp = InputDB()
-    inp.put_str("equation",                   "dd")
-    inp.put_str("problem_type",               "eigenvalue")
-    inp.put_int("number_groups",              7)
-    #
-    inp.put_str("inner_solver",               "SI")
-    inp.put_int("inner_max_iters",            1000000)
-    inp.put_dbl("inner_tolerance",            1e-8)
-    inp.put_int("inner_print_level",          1)
-    inp.put_int("inner_print_interval",       10)
-    inp.put_str("inner_pc_type",              "DSA")
-    inp.put_int("inner_pc_side",              2)
-    #
-    inp.put_str("outer_solver",               "GS")
-    inp.put_int("outer_max_iters",            1000)
-    inp.put_dbl("outer_tolerance",            1e-8)
-    inp.put_int("outer_print_level",          1)
-    inp.put_int("outer_print_interval",       1)
-    #inp.put_str("outer_pc_type",              "mgdsa")
-    #inp.put_int("outer_krylov_group_cutoff",  0)
-    #inp.put_int("outer_pc_side",              2)
-    #
-    inp.put_str("bc_west",                    "vacuum")
-    inp.put_str("bc_east",                    "vacuum")
-    inp.put_str("bc_south",                   "vacuum")
-    inp.put_str("bc_north",                   "vacuum")
-    #
-    #inp.put_str("quad_type",                  "c-l")
-    inp.put_int("quad_number_polar_octant",   n)
-    inp.put_int("quad_number_azimuth_octant", n)
-    #
-    solver_db = InputDB("solver_db")
-    solver_db.put_dbl("linear_solver_atol",              0.0);
-    solver_db.put_dbl("linear_solver_rtol",              1e-8);
-    solver_db.put_str("linear_solver_type",              "petsc");
-    solver_db.put_int("linear_solver_maxit",             50000);
-    solver_db.put_int("linear_solver_gmres_restart",     30);
-    solver_db.put_int("linear_solver_monitor_level",     1);
-    #
-    preconditioner_db = InputDB("preconditioner_db")
-    preconditioner_db.put_dbl("linear_solver_atol",              0.0);
-    preconditioner_db.put_dbl("linear_solver_rtol",              0.1);
-    preconditioner_db.put_str("linear_solver_type",              "petsc");
-    preconditioner_db.put_int("linear_solver_maxit",             5000);
-    preconditioner_db.put_int("linear_solver_gmres_restart",     30);
-    preconditioner_db.put_int("linear_solver_monitor_level",     0);
-    preconditioner_db.put_str("pc_type",                         "petsc_pc");
-    preconditioner_db.put_str("petsc_pc_type",                   "ilu");
-    preconditioner_db.put_int("petsc_pc_factor_levels",          2);
-    #
-    inp.put_spdb("inner_solver_db", solver_db)
-    inp.put_spdb("inner_pc_db",     preconditioner_db)
-    inp.put_spdb("outer_solver_db", solver_db)
-    inp.put_spdb("outer_pc_db",     preconditioner_db)
+    solver_db = SolverDatabase(
+      linear=LinearSolver.gmres(
+        atol=0.0,
+        rtol=1e-8,
+        max_iters=50000,
+        restart=30,
+        monitor_level=1,
+      )
+    )
+    preconditioner_db = SolverDatabase(
+      linear=LinearSolver.gmres(
+        atol=0.0,
+        rtol=0.1,
+        max_iters=5000,
+        restart=30,
+        monitor_level=0,
+        pc_type="ilut",
+        pc_side=1,
+        ilu_levels=2,
+        ilu_thresh=0.0,
+      )
+    )
+    inp = fixed_source_input(
+      groups=7,
+      dimension=2,
+      equation="dd",
+      boundary="vacuum",
+      inner=IterationSolver.source_iteration(
+        max_iters=1000000,
+        tolerance=1e-8,
+        print_level=1,
+        print_interval=10,
+        pc_type="DSA",
+        pc_side=2,
+      ),
+      outer=IterationSolver.gauss_seidel(
+        max_iters=1000,
+        tolerance=1e-8,
+        print_level=1,
+        print_interval=1,
+      ),
+      quadrature=Quadrature(polar=n, azimuth=n),
+      solver_databases={
+        "inner_solver_db": solver_db,
+        "inner_pc_db": preconditioner_db,
+        "outer_solver_db": solver_db,
+        "outer_pc_db": preconditioner_db,
+      },
+    )
     #-----------------------------------------------------------------------------#
     # Material
     #-----------------------------------------------------------------------------#

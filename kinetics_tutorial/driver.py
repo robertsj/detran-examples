@@ -11,24 +11,25 @@ def run_steady_state():
     Try 100% for a step insertion.  Do same for transient.
     """
 
-    inp = get_input()
+    inp = get_input(adjoint=0)
     mesh = get_mesh(10)
     mat = get_materials(1.0, 1.0)
 
     ## For k-inf with 100% withdrawn fuel, uncomment these lines
-    # inp.put_str("bc_west", "reflect")
-    # inp.put_str("bc_east", "reflect")
+    # inp = get_input(
+    #     adjoint=0,
+    #     input_overrides={"bc_west": "reflect", "bc_east": "reflect"},
+    # )
     # mat = get_control_materials(*[1., 1., 1., 1., 1., "fuel"])
 
 
-    inp.put_int("adjoint", 0)
     manager = Eigen1D(inp, downcast(mat), mesh)
     manager.solve()
     ic_f = manager.state()
     k_f = ic_f.eigenvalue()
 
-    inp.put_int("adjoint", 1)
-    manager_a = Eigen1D(inp, downcast(mat), mesh)
+    adjoint_input = get_input(adjoint=1)
+    manager_a = Eigen1D(adjoint_input, downcast(mat), mesh)
     manager_a.solve()
     ic_a = manager_a.state()
     k_a = ic_a.eigenvalue()
@@ -37,17 +38,18 @@ def run_steady_state():
     print("Adjoint keff = ", k_a)
 
 
-    plt.figure(1)
-    plt.plot(ic_f.phi(0))
-    plt.plot(ic_f.phi(1))
-    plt.legend([r'$\phi_{f}$', r'$\phi_{t}$'])
-    
-    #plt.figure(2)
-    #plt.plot(ic_a.phi(0))
-    #plt.plot(ic_a.phi(1))
-    #plt.legend([r'$\phi^+_{f}$', r'$\phi^+_{t}$'])
+    if plt is not None:
+        plt.figure(1)
+        plt.plot(ic_f.phi(0))
+        plt.plot(ic_f.phi(1))
+        plt.legend([r'$\phi_{f}$', r'$\phi_{t}$'])
 
-    plt.show()
+        #plt.figure(2)
+        #plt.plot(ic_a.phi(0))
+        #plt.plot(ic_a.phi(1))
+        #plt.legend([r'$\phi^+_{f}$', r'$\phi^+_{t}$'])
+
+        plt.show()
     mat.display()
     return ic_f
 
@@ -55,8 +57,16 @@ def run_steady_state():
 def run_transient():
     
     # STEADY STATE
-    inp = get_input()
-    inp.put_int("adjoint", 0)
+    inp = get_input(
+        adjoint=0,
+        time_stepper=TimeStepper.bdf2(
+            max_steps=10000,
+            step_size=0.1,
+            final_time=60.0,
+            max_iters=1,
+            tolerance=1.0e-5,
+        ),
+    )
     mesh = get_mesh(10)
     mat = get_ramp_materials()
     mat.update(0.0, 0, 1, False)
@@ -76,15 +86,6 @@ def run_transient():
     ic.scale(P0/F)
 
     # TRANSIENT
-    inp.put_int("ts_max_steps",                   10000)
-    inp.put_int("ts_scheme",                      Time1D.BDF2)
-    inp.put_int("ts_output",                      0)
-    inp.put_dbl("ts_step_size",                   0.1)
-    inp.put_dbl("ts_final_time",                  60.0)
-    inp.put_int("ts_max_iters",                   1)
-    inp.put_dbl("ts_tolerance",                   1.0e-5)
-    
-    
     data = {}
     data['times'] = []
     data['powers'] = []
@@ -136,8 +137,9 @@ precursors (8 group), power (core)"""
     print("MAX POWER = ", max(powers))
     print("FINAL POWER = ", powers[-1], times[-1])
     pickle.dump(data, open('transient_0_01s.p', 'wb'))
-    plt.plot(times, powers)
-    plt.show()
+    if plt is not None:
+        plt.plot(times, powers)
+        plt.show()
     
 
 if __name__ == "__main__":

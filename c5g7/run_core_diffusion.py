@@ -22,19 +22,6 @@ except ImportError:
   from plot_utils import *
 def run():
   #-----------------------------------------------------------------------------#
-  # Input
-  #-----------------------------------------------------------------------------#
-  inp = InputDB()
-  #
-  inp.put_int("number_groups",            7)
-  inp.put_int("diffusion_max_iters",      1000)
-  inp.put_dbl("diffusion_tolerance",      1e-6)
-  #
-  inp.put_str("bc_left",                  "reflect")
-  inp.put_str("bc_right",                 "vacuum")
-  inp.put_str("bc_bottom",                "reflect")
-  inp.put_str("bc_top",                   "vacuum")
-  #-----------------------------------------------------------------------------#
   # Material
   #-----------------------------------------------------------------------------#
   mat = get_materials()
@@ -48,20 +35,22 @@ def run():
   core = get_core(7, True)
   mesh = core.mesh()
   #-----------------------------------------------------------------------------#
-  # State
-  #-----------------------------------------------------------------------------#
-  state = State(inp, mesh)
-  #-----------------------------------------------------------------------------#
   # Execute
   #-----------------------------------------------------------------------------#
   #Manager.initialize(sys.argv)
-  solver = DiffusionEigensolver(inp, mat, mesh, state)
+  problem = DiffusionEigenvalue(
+    mesh=mesh,
+    materials=mat,
+    boundary=("reflect", "vacuum", "reflect", "vacuum"),
+    solver=EigenSolver.arnoldi(max_iters=1000, tolerance=1e-6),
+  )
   t = time.time()
-  solver.solve()
+  result = problem.solve()
   print("elapsed = ", time.time()-t)
   #-----------------------------------------------------------------------------#
   # Plot
   #-----------------------------------------------------------------------------#
+  state = result.state
   plot_flux(mesh, np.asarray(state.phi(0)))
   #-----------------------------------------------------------------------------#
   # Wrap Up

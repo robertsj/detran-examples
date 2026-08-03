@@ -9,13 +9,11 @@ Argonne Code Center. Benchmark  Problem  Book. Technical Report ANL-7416
 Supplement 2, Argonne National Laboratory, 1977
 """
 
-import sys 
-
 from detran import *
 try:
-    from .diffusion_input import get_input
+    from .diffusion_input import get_problem
 except ImportError:
-    from diffusion_input import get_input
+    from diffusion_input import get_problem
 import time
 
 def get_material():
@@ -72,20 +70,17 @@ def get_mesh(num_div=1):
 def run():
 
     # Model
-    inp = get_input()
     mat = get_material()
     mesh = get_mesh(5)
 
     # Solver
-    solver = Eigen2D(inp, mat, mesh)
+    problem = get_problem(mesh, mat)
     t = time.time()
-    solver.solve()
-    state = solver.state()
+    result = problem.solve()
     print("elapsed = ", time.time()-t)
 
-    return state.eigenvalue()
+    return result.keff
 
 if __name__ == "__main__":
   #Manager.initialize(sys.argv)
   run()
-  print("lala")

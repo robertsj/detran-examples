@@ -174,39 +174,38 @@ def get_mesh(geometry_id) :
   return mesh
 
 
-def get_input():
-    inp = InputDB()
-    inp.put_str("problem_type",               "eigenvalue")
-    inp.put_int("number_groups",              2)
-    inp.put_str("equation",                   "dd")
-    inp.put_str("inner_solver",               "SI")
-    inp.put_int("inner_max_iters",            1000)
-    inp.put_dbl("inner_tolerance",            1e-7)
-    inp.put_int("inner_print_level",          0)
-    inp.put_str("outer_solver",               "GS")
-    inp.put_int("outer_max_iters",            1000)
-    inp.put_dbl("outer_tolerance",            1e-7)
-    inp.put_int("outer_print_level",          0)
-    inp.put_str("eigen_solver",               "PI")
-    inp.put_int("eigen_max_iters",            200)
-    inp.put_dbl("eigen_tolerance",            1e-7)
-    inp.put_str("bc_west",                    "vacuum")
-    inp.put_str("bc_east",                    "vacuum")
-    inp.put_str("quad_type",                  "gl")
-    inp.put_int("quad_number_polar_octant",   16)
-    return inp
+def get_input(boundary="vacuum"):
+    return eigenvalue_input(
+        groups=2,
+        dimension=1,
+        equation="dd",
+        boundary=boundary,
+        inner=IterationSolver.source_iteration(
+            max_iters=1000,
+            tolerance=1e-7,
+            print_level=0,
+        ),
+        outer=IterationSolver.gauss_seidel(
+            max_iters=1000,
+            tolerance=1e-7,
+            print_level=0,
+        ),
+        solver=EigenSolver.power_iteration(
+            max_iters=200,
+            tolerance=1e-7,
+        ),
+        quadrature=Quadrature.gauss_legendre(16),
+    )
 
 def run():
-    inp = get_input()
     mat = get_materials()
 
     cases = ["core0", "core1", "core2",
              "assembly0", "assembly1", "assembly2", "assembly3"]
     keffs = []
     for case in cases:
-        if "assem" in case:
-            inp.put_str("bc_west", "reflect")
-            inp.put_str("bc_east", "reflect")
+        boundary = "reflect" if "assem" in case else "vacuum"
+        inp = get_input(boundary=boundary)
         mesh = get_mesh(case)
         solver = Eigen1D(inp, mat, mesh)
         solver.solve()

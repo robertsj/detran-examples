@@ -5,44 +5,51 @@ a few different techniques.
 
 from detran import *
 import numpy as np
-import matplotlib.pyplot as plt
+try:
+    import matplotlib.pyplot as plt
+except ImportError:
+    plt = None
 import time
+
+def get_solver_databases():
+    solver_db = SolverDatabase(
+        linear=LinearSolver.gmres(
+            atol=1e-9,
+            rtol=1e-9,
+            max_iters=5000,
+            restart=30,
+            monitor_level=0,
+            pc_type="ilu0",
+            pc_side=1,
+        )
+    )
+    return {
+        "inner_solver_db": solver_db,
+        "inner_pc_db": solver_db,
+        "outer_solver_db": solver_db,
+        "eigen_solver_db": solver_db,
+    }
 
 def get_input():
     """ fills default input parameters.
     """
 
-    # Input
-    inp = InputDB()
-    inp.put_str("problem_type",       "fixed")
-    inp.put_int("number_groups",      1)
-    inp.put_str("equation",           "dd")
-    inp.put_str("inner_solver",       "SI")
-    inp.put_int("inner_max_iters",    10000)
-    inp.put_dbl("inner_tolerance",    1e-12)
-    inp.put_int("inner_use_pc",       1)
-    inp.put_int("inner_print_level",  0)
-    # Note, we print out the outer, which gives the sweep count.  For
-    # 1 group, though, there is no real outer iteration.
-    inp.put_int("outer_print_out",            1)
-    inp.put_str("quad_type",                  "gl")
-    inp.put_int("quad_number_polar_octant",   1)
-    inp.put_str("bc_west",                    "vacuum")
-    #
-    db = InputDB("callow_db")
-    db.put_dbl("linear_solver_atol",              1e-9);
-    db.put_dbl("linear_solver_rtol",              1e-9);
-    db.put_str("linear_solver_type",              "petsc");
-    db.put_int("linear_solver_maxit",             5000);
-    db.put_int("linear_solver_gmres_restart",     30);
-    db.put_int("linear_solver_monitor_level",     0);
-    db.put_str("pc_type",                         "petsc_pc");
-    db.put_str("petsc_pc_type",                   "lu");
-    inp.put_spdb("inner_solver_db",               db)
-    inp.put_spdb("inner_pc_db",                   db)
-    inp.put_spdb("outer_solver_db",               db)
-    inp.put_spdb("eigen_solver_db",               db)
-    return inp
+    return fixed_source_input(
+        groups=1,
+        dimension=1,
+        equation="dd",
+        boundary="vacuum",
+        inner=IterationSolver.source_iteration(
+            max_iters=10000,
+            tolerance=1e-12,
+            print_level=0,
+            use_pc=True,
+        ),
+        quadrature=Quadrature.gauss_legendre(1),
+        solver_databases=get_solver_databases(),
+        # For one group this is mostly the sweep count; keep the legacy output.
+        input_overrides={"outer_print_out": 1},
+    )
 
 def get_mesh():
     # Mesh
@@ -57,10 +64,23 @@ def get_material(c=0.5):
     return mat
 
 def run():
-    inp = get_input()
     mat = get_material()
     mesh = get_mesh()
-    solver = Fixed1D(inp, mat, mesh)
+    problem = FixedSourceProblem(
+        mesh=mesh,
+        materials=mat,
+        boundary="vacuum",
+        inner=IterationSolver.source_iteration(
+            max_iters=10000,
+            tolerance=1e-12,
+            print_level=0,
+            use_pc=True,
+        ),
+        quadrature=Quadrature.gauss_legendre(1),
+        solver_databases=get_solver_databases(),
+        input_overrides={"outer_print_out": 1},
+    )
+    solver = problem.create_raw_solver()
     solver.setup()
     quad = solver.quadrature()
     q_e = ConstantSource(1, mesh, 1.0, quad)
@@ -73,13 +93,14 @@ def run():
     print(elapsed, " seconds")
 
     phi = np.asarray(state.phi(0))
-    edges = np.concatenate(
-        ([0.0], np.cumsum([mesh.dx(i) for i in range(mesh.number_cells_x())]))
-    )
-    plt.stairs(phi, edges)
-    plt.xlabel("x")
-    plt.ylabel("scalar flux")
-    plt.show()
+    if plt is not None:
+        edges = np.concatenate(
+            ([0.0], np.cumsum([mesh.dx(i) for i in range(mesh.number_cells_x())]))
+        )
+        plt.stairs(phi, edges)
+        plt.xlabel("x")
+        plt.ylabel("scalar flux")
+        plt.show()
 
 
 if __name__ == "__main__":

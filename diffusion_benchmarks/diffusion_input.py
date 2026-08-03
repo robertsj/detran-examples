@@ -2,40 +2,74 @@
 Base input database for diffusion problems.
 """
 
-from detran import InputDB
+from detran import (
+    Boundary,
+    DiffusionEigenvalue,
+    EigenSolver,
+    LinearSolver,
+    diffusion_eigenvalue_input,
+)
 
-def get_input(solver=None):
-    """ Default parameters for solving quarter-core, diffusion eigenproblems.
-    """
+DEFAULT_BOUNDARY = Boundary(
+    west="reflect",
+    east="vacuum",
+    south="reflect",
+    north="vacuum",
+    bottom="vacuum",
+    top="vacuum",
+)
 
-    inp = InputDB()
-    inp.put_int("number_groups",                      2)
-    inp.put_int("dimension",                          2)
-    inp.put_str("equation",                           "diffusion")
-    inp.put_str("bc_west",                            "reflect")
-    inp.put_str("bc_east",                            "vacuum")
-    inp.put_str("bc_south",                           "reflect")
-    inp.put_str("bc_north",                           "vacuum")
-    inp.put_int("eigen_max_iters",                    1000)
-    ## TODO: callow
-    inp.put_str("eigen_solver",                       "arnoldi")
-    db = InputDB("callow_db")
-    # outer gmres parameters
-    db.put_dbl("linear_solver_atol",                  1e-8);
-    db.put_dbl("linear_solver_rtol",                  1e-8);
-    db.put_str("linear_solver_type",                  "gmres");
-    db.put_int("linear_solver_maxit",                 5000);
-    db.put_int("linear_solver_gmres_restart",         30);
-    db.put_str("eigen_solver_type",                   "gd");
-    db.put_int("eigen_solver_monitor_level",          0);
-    db.put_int("linear_solver_monitor_level",         0);
-    inp.put_spdb("outer_solver_db", db)
-    inp.put_spdb("eigen_solver_db", db)
+
+def get_solver(solver=None):
+    """Default solver parameters for diffusion benchmark eigenproblems."""
+
+    if isinstance(solver, EigenSolver):
+        return solver
+
+    linear = LinearSolver.gmres(
+        atol=1e-8,
+        rtol=1e-8,
+        max_iters=5000,
+        restart=30,
+        monitor_level=0,
+    )
 
     if solver == "slepc":
-        pass
+        return EigenSolver.slepc(
+            inner=linear,
+            max_iters=1000,
+            monitor_level=0,
+        )
 
-    return inp
+    return EigenSolver.arnoldi(
+        algorithm="gd",
+        inner=linear,
+        max_iters=1000,
+        monitor_level=0,
+    )
+
+
+def get_input(solver=None, dimension=2):
+    """Compatibility helper returning the generated legacy InputDB."""
+
+    return diffusion_eigenvalue_input(
+        groups=2,
+        dimension=dimension,
+        boundary=DEFAULT_BOUNDARY,
+        solver=get_solver(solver),
+    )
+
+
+def get_problem(mesh, material, solver=None, dimension=None):
+    """Build a user-facing diffusion eigenvalue problem."""
+
+    return DiffusionEigenvalue(
+        mesh=mesh,
+        materials=material,
+        boundary=DEFAULT_BOUNDARY,
+        solver=get_solver(solver),
+        dimension=dimension,
+    )
 
 
 
