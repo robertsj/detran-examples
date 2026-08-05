@@ -22,5 +22,17 @@
 c5g7/moc_plots*/
 c5g7/*.npz
 
+# Generated CSG example output
+csg/notebook_outputs/
+csg/ou*/
+csg/out/
+
+# Generated MG-CMDSA calibration/output products
+mgcmdsa/cache/
+mgcmdsa/flux_plots*/
+mgcmdsa/*data*.p
+mgcmdsa/convergence_data.p
+mgcmdsa/tol_data.txt
+
 # Temporary saves
 *.py~
