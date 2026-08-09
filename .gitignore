@@ -30,9 +30,20 @@ csg/out/
 # Generated MG-CMDSA calibration/output products
 mgcmdsa/cache/
 mgcmdsa/flux_plots*/
+mgcmdsa/logs/
+mgcmdsa/spectral_plots/
+mgcmdsa/thread_pinning_runs/
 mgcmdsa/*data*.p
 mgcmdsa/convergence_data.p
-mgcmdsa/tol_data.txt
+mgcmdsa/tol_data*.txt
+mgcmdsa/*.npz
+mgcmdsa/*.csv
+mgcmdsa/paper_reproduction*.json
+mgcmdsa/current_table*.tex
+mgcmdsa/paper_bwr_summary.txt
+mgcmdsa/paper_compare*.txt
+mgcmdsa/paper_results_manifest*.md
+mgcmdsa/published_table*.txt
 
 # Temporary saves
 *.py~

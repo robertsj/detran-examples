@@ -1,0 +1,474 @@
+{
+  "description": "Compact local C5G7 timing and sweep data for updated results plotting.",
+  "paper": {
+    "authors": [
+      "Jeremy A. Roberts",
+      "Benoit Forget"
+    ],
+    "doi": "10.1016/j.jcp.2014.06.034",
+    "journal": "Journal of Computational Physics",
+    "pages": "455-472",
+    "title": "Multigroup Diffusion Preconditioners for Multiplying Fixed-Source Transport Problems",
+    "url": "https://doi.org/10.1016/j.jcp.2014.06.034",
+    "volume": "274",
+    "year": 2014
+  },
+  "runs": [
+    {
+      "backend": "builtin",
+      "convergence": {
+        "calibration_seed": "default",
+        "calibration_sweeps": {
+          "gmres": 168,
+          "gs_gmres": 1066,
+          "gs_si1": 1589,
+          "gs_si20": 1684
+        },
+        "quadrature": 8,
+        "solver_tolerances": [
+          {
+            "solver_code": [
+              0,
+              0
+            ],
+            "tolerance": 1.0925438122812394e-05
+          },
+          {
+            "solver_code": [
+              0,
+              1
+            ],
+            "tolerance": 8.967447505375794e-05
+          },
+          {
+            "solver_code": [
+              1,
+              0
+            ],
+            "tolerance": 1.773583252413699e-05
+          },
+          {
+            "solver_code": [
+              2,
+              0
+            ],
+            "tolerance": 0.00014723376996368903
+          }
+        ],
+        "tolerance": 0.0001
+      },
+      "label": "builtin q8 tau=1e-4",
+      "quadrature": 8,
+      "rows": [
+        {
+          "backend": "builtin",
+          "case": "gs_si20",
+          "sweeps": 1684,
+          "time_s": 574.4890630245209
+        },
+        {
+          "backend": "builtin",
+          "case": "gs_si1",
+          "sweeps": 1589,
+          "time_s": 534.8032119274139
+        },
+        {
+          "backend": "builtin",
+          "case": "gs_gmres",
+          "sweeps": 1066,
+          "time_s": 372.7828526496887
+        },
+        {
+          "backend": "builtin",
+          "case": "gmres",
+          "sweeps": 168,
+          "time_s": 54.370182514190674
+        },
+        {
+          "backend": "builtin",
+          "case": "cmdsa",
+          "sweeps": 70,
+          "time_s": 26.405612468719482
+        },
+        {
+          "backend": "builtin",
+          "case": "cmdsa_s",
+          "sweeps": 56,
+          "time_s": 20.519306182861328
+        },
+        {
+          "backend": "builtin",
+          "case": "tc1_cmdsa_s",
+          "sweeps": 49,
+          "time_s": 30.26386260986328
+        }
+      ],
+      "source_files": [
+        "Xdata_0.0001_8.p",
+        "convergence_data_0.0001_q8.p"
+      ],
+      "tolerance": 0.0001,
+      "tolerance_key": "1e-4"
+    },
+    {
+      "backend": "petsc",
+      "convergence": {
+        "calibration_seed": "default",
+        "calibration_sweeps": {
+          "gmres": 168,
+          "gs_gmres": 1066,
+          "gs_si1": 1589,
+          "gs_si20": 1684
+        },
+        "quadrature": 8,
+        "solver_tolerances": [
+          {
+            "solver_code": [
+              0,
+              0
+            ],
+            "tolerance": 1.0925438122812394e-05
+          },
+          {
+            "solver_code": [
+              0,
+              1
+            ],
+            "tolerance": 8.967447505375794e-05
+          },
+          {
+            "solver_code": [
+              1,
+              0
+            ],
+            "tolerance": 1.773583252413699e-05
+          },
+          {
+            "solver_code": [
+              2,
+              0
+            ],
+            "tolerance": 0.00014723376996368903
+          }
+        ],
+        "tolerance": 0.0001
+      },
+      "label": "petsc 1thread q8 tau=1e-4",
+      "quadrature": 8,
+      "rows": [
+        {
+          "backend": "petsc",
+          "case": "gs_si20",
+          "sweeps": 1684,
+          "time_s": 84.93434929847717
+        },
+        {
+          "backend": "petsc",
+          "case": "gs_si1",
+          "sweeps": 1589,
+          "time_s": 82.43432450294495
+        },
+        {
+          "backend": "petsc",
+          "case": "gs_gmres",
+          "sweeps": 777,
+          "time_s": 39.0105414390564
+        },
+        {
+          "backend": "petsc",
+          "case": "gs_dsa_lu",
+          "sweeps": 586,
+          "time_s": 35.425211906433105
+        },
+        {
+          "backend": "petsc",
+          "case": "gs_dsa_ilu",
+          "sweeps": 586,
+          "time_s": 32.50482535362244
+        },
+        {
+          "backend": "petsc",
+          "case": "gmres",
+          "sweeps": 154,
+          "time_s": 7.7420549392700195
+        },
+        {
+          "backend": "petsc",
+          "case": "dsa_lu",
+          "sweeps": 42,
+          "time_s": 13.939986228942871
+        },
+        {
+          "backend": "petsc",
+          "case": "dsa_ilu",
+          "sweeps": 42,
+          "time_s": 5.421366214752197
+        },
+        {
+          "backend": "petsc",
+          "case": "cmdsa",
+          "sweeps": 63,
+          "time_s": 3.662869691848755
+        },
+        {
+          "backend": "petsc",
+          "case": "cmdsa_s",
+          "sweeps": 49,
+          "time_s": 2.796326160430908
+        },
+        {
+          "backend": "petsc",
+          "case": "tc1_cmdsa_s",
+          "sweeps": 49,
+          "time_s": 4.640272378921509
+        }
+      ],
+      "source_files": [
+        "thread_pinning_runs/petsc_1thread/Xdata_0.0001_8_petsc.p",
+        "thread_pinning_runs/petsc_1thread/convergence_data_0.0001_q8.p"
+      ],
+      "tolerance": 0.0001,
+      "tolerance_key": "1e-4"
+    },
+    {
+      "backend": "petsc",
+      "convergence": {
+        "calibration_seed": "paper",
+        "calibration_sweeps": {
+          "gmres": 217,
+          "gs_gmres": 2432,
+          "gs_si1": 2569,
+          "gs_si20": 2960
+        },
+        "quadrature": 8,
+        "solver_tolerances": [
+          {
+            "solver_code": [
+              0,
+              0
+            ],
+            "tolerance": 1.0778789756268344e-07
+          },
+          {
+            "solver_code": [
+              0,
+              1
+            ],
+            "tolerance": 2.7e-07
+          },
+          {
+            "solver_code": [
+              1,
+              0
+            ],
+            "tolerance": 9.1e-08
+          },
+          {
+            "solver_code": [
+              2,
+              0
+            ],
+            "tolerance": 1.8e-07
+          }
+        ],
+        "tolerance": 1e-06
+      },
+      "label": "petsc 1thread q8 tau=1e-6",
+      "quadrature": 8,
+      "rows": [
+        {
+          "backend": "petsc",
+          "case": "gs_si20",
+          "sweeps": 2960,
+          "time_s": 150.9478759765625
+        },
+        {
+          "backend": "petsc",
+          "case": "gs_si1",
+          "sweeps": 2569,
+          "time_s": 134.21111178398132
+        },
+        {
+          "backend": "petsc",
+          "case": "gs_gmres",
+          "sweeps": 2432,
+          "time_s": 127.01294898986816
+        },
+        {
+          "backend": "petsc",
+          "case": "gs_dsa_lu",
+          "sweeps": 1517,
+          "time_s": 83.46416974067688
+        },
+        {
+          "backend": "petsc",
+          "case": "gs_dsa_ilu",
+          "sweeps": 1517,
+          "time_s": 87.47960877418518
+        },
+        {
+          "backend": "petsc",
+          "case": "gmres",
+          "sweeps": 217,
+          "time_s": 11.11680269241333
+        },
+        {
+          "backend": "petsc",
+          "case": "dsa_lu",
+          "sweeps": 56,
+          "time_s": 10.404277324676514
+        },
+        {
+          "backend": "petsc",
+          "case": "dsa_ilu",
+          "sweeps": 56,
+          "time_s": 5.849214553833008
+        },
+        {
+          "backend": "petsc",
+          "case": "cmdsa",
+          "sweeps": 91,
+          "time_s": 5.11970329284668
+        },
+        {
+          "backend": "petsc",
+          "case": "cmdsa_s",
+          "sweeps": 84,
+          "time_s": 4.7341225147247314
+        },
+        {
+          "backend": "petsc",
+          "case": "tc1_cmdsa_s",
+          "sweeps": 63,
+          "time_s": 5.31344199180603
+        }
+      ],
+      "source_files": [
+        "thread_pinning_runs/petsc_1thread/Xdata_1e-06_8_petsc.p",
+        "thread_pinning_runs/petsc_1thread/convergence_data_1e-06_q8_petsc.p"
+      ],
+      "tolerance": 1e-06,
+      "tolerance_key": "1e-6"
+    },
+    {
+      "backend": "petsc",
+      "convergence": {
+        "calibration_seed": "paper",
+        "calibration_sweeps": {
+          "gmres": 280,
+          "gs_gmres": 3680,
+          "gs_si1": 3297,
+          "gs_si20": 4350
+        },
+        "quadrature": 8,
+        "solver_tolerances": [
+          {
+            "solver_code": [
+              0,
+              0
+            ],
+            "tolerance": 1e-09
+          },
+          {
+            "solver_code": [
+              0,
+              1
+            ],
+            "tolerance": 3e-09
+          },
+          {
+            "solver_code": [
+              1,
+              0
+            ],
+            "tolerance": 1.8e-09
+          },
+          {
+            "solver_code": [
+              2,
+              0
+            ],
+            "tolerance": 3.7e-09
+          }
+        ],
+        "tolerance": 1e-08
+      },
+      "label": "petsc 1thread q8 tau=1e-8",
+      "quadrature": 8,
+      "rows": [
+        {
+          "backend": "petsc",
+          "case": "gs_si20",
+          "sweeps": 4350,
+          "time_s": 226.60779857635498
+        },
+        {
+          "backend": "petsc",
+          "case": "gs_si1",
+          "sweeps": 3297,
+          "time_s": 169.6076831817627
+        },
+        {
+          "backend": "petsc",
+          "case": "gs_gmres",
+          "sweeps": 3680,
+          "time_s": 193.85346674919128
+        },
+        {
+          "backend": "petsc",
+          "case": "gs_dsa_lu",
+          "sweeps": 2214,
+          "time_s": 131.65915966033936
+        },
+        {
+          "backend": "petsc",
+          "case": "gs_dsa_ilu",
+          "sweeps": 2214,
+          "time_s": 129.8944923877716
+        },
+        {
+          "backend": "petsc",
+          "case": "gmres",
+          "sweeps": 280,
+          "time_s": 15.341751098632812
+        },
+        {
+          "backend": "petsc",
+          "case": "dsa_lu",
+          "sweeps": 70,
+          "time_s": 16.4149227142334
+        },
+        {
+          "backend": "petsc",
+          "case": "dsa_ilu",
+          "sweeps": 70,
+          "time_s": 6.811622142791748
+        },
+        {
+          "backend": "petsc",
+          "case": "cmdsa",
+          "sweeps": 126,
+          "time_s": 6.606383562088013
+        },
+        {
+          "backend": "petsc",
+          "case": "cmdsa_s",
+          "sweeps": 105,
+          "time_s": 5.767088174819946
+        },
+        {
+          "backend": "petsc",
+          "case": "tc1_cmdsa_s",
+          "sweeps": 91,
+          "time_s": 8.339701175689697
+        }
+      ],
+      "source_files": [
+        "thread_pinning_runs/petsc_1thread/Xdata_1e-08_8_petsc.p",
+        "thread_pinning_runs/petsc_1thread/convergence_data_1e-08_q8_petsc.p"
+      ],
+      "tolerance": 1e-08,
+      "tolerance_key": "1e-8"
+    }
+  ]
+}

@@ -1,0 +1,116 @@
+{
+  "A": {
+    "current": {
+      "crop": 9,
+      "density": 0.8457300275482094,
+      "elapsed_s": 140.6692135334015,
+      "frobenius_residual": 10.522539446347716,
+      "keff": 1.0,
+      "nnz": 9026721,
+      "operator_kind": "transport",
+      "pc_fission": true,
+      "quadrature": 6,
+      "shape": [
+        3267,
+        3267
+      ],
+      "spectral_radius": 0.9996842976692089,
+      "std_lambda": 0.13596756172098973,
+      "submesh": 3
+    },
+    "paper": {
+      "frobenius_residual": 17.1369,
+      "iterations": 36,
+      "std_lambda": 0.1253
+    }
+  },
+  "CMDSA": {
+    "current": {
+      "crop": 9,
+      "density": 1.0,
+      "elapsed_s": 153.01049399375916,
+      "frobenius_residual": 11.275580326996014,
+      "keff": 1.0,
+      "nnz": 10673289,
+      "operator_kind": "cmdsa",
+      "pc_fission": true,
+      "quadrature": 6,
+      "shape": [
+        3267,
+        3267
+      ],
+      "spectral_radius": 1.97127370844357,
+      "std_lambda": 0.1409186569605069,
+      "submesh": 3
+    },
+    "paper": {
+      "frobenius_residual": 29.0933,
+      "iterations": 28,
+      "std_lambda": 0.1179
+    }
+  },
+  "CMDSA-S": {
+    "current": {
+      "crop": 9,
+      "density": 1.0,
+      "elapsed_s": 156.1581163406372,
+      "frobenius_residual": 6.718341772061854,
+      "keff": 1.0,
+      "nnz": 10673289,
+      "operator_kind": "cmdsa-s",
+      "pc_fission": true,
+      "quadrature": 6,
+      "shape": [
+        3267,
+        3267
+      ],
+      "spectral_radius": 1.4185613182690728,
+      "std_lambda": 0.0887760952235918,
+      "submesh": 3
+    },
+    "paper": {
+      "frobenius_residual": 20.958,
+      "iterations": 25,
+      "std_lambda": 0.1018
+    }
+  },
+  "DSA": {
+    "current": {
+      "crop": 9,
+      "density": 1.0,
+      "elapsed_s": 261.8654339313507,
+      "frobenius_residual": 5.543353974538244,
+      "keff": 1.0,
+      "nnz": 10673289,
+      "operator_kind": "mgdsa",
+      "pc_fission": true,
+      "quadrature": 6,
+      "shape": [
+        3267,
+        3267
+      ],
+      "spectral_radius": 1.3709859856132363,
+      "std_lambda": 0.07428951173284228,
+      "submesh": 3
+    },
+    "paper": {
+      "frobenius_residual": 19.7099,
+      "iterations": 20,
+      "std_lambda": 0.0917
+    }
+  },
+  "TC-CMDSA": {
+    "current": null,
+    "note": "not regenerated in this pass; PETSc backend unavailable in default install and built-in full TC-CMDSA was previously too slow",
+    "paper": {
+      "frobenius_residual": 0.9037,
+      "iterations": 9,
+      "std_lambda": 0.0049
+    }
+  },
+  "_archive_notes": [
+    "Current A/DSA/CMDSA/CMDSA-S entries use corrected BWR fission data.",
+    "TC-CMDSA was not regenerated in corrected-fission mode for this archive.",
+    "Dense operator matrices are excluded; eigenvalues and diagnostics are enough to replot."
+  ]
+}
