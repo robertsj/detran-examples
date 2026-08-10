@@ -1,7 +1,7 @@
 # pyexamples/c5g7/moc_driver.py
 #
-# Shared native 2-D step-characteristics MOC driver support for the C5G7 pin,
-# assembly, and core examples.
+# Shared native 2-D MOC driver support for the C5G7 pin, assembly, and core
+# examples.
 
 import argparse
 import math
@@ -32,6 +32,7 @@ MOC_OPTION_NAMES = (
   "azimuth",
   "quadrature",
   "spacing",
+  "equation",
   "inner_tolerance",
   "outer_tolerance",
   "eigen_tolerance",
@@ -52,6 +53,7 @@ MOC_PROBLEM_OPTION_NAMES = (
   "azimuth",
   "quadrature",
   "spacing",
+  "equation",
   "inner_tolerance",
   "outer_tolerance",
   "eigen_tolerance",
@@ -69,6 +71,7 @@ DEFAULT_MOC_OPTIONS = {
   "azimuth": 4,
   "quadrature": "u-u",
   "spacing": 0.25,
+  "equation": "scmoc",
   "inner_tolerance": 1.0e-5,
   "outer_tolerance": 1.0e-5,
   "eigen_tolerance": 1.0e-4,
@@ -103,6 +106,7 @@ SUMMARY_KEYS = (
   "polar",
   "azimuth",
   "spacing",
+  "equation",
   "keff",
   "finite",
   "reference_name",
@@ -184,6 +188,7 @@ def build_moc_problem(
   azimuth=4,
   quadrature="u-u",
   spacing=0.25,
+  equation="scmoc",
   inner_tolerance=1.0e-5,
   outer_tolerance=1.0e-5,
   eigen_tolerance=1.0e-4,
@@ -197,7 +202,7 @@ def build_moc_problem(
   return dt.EigenvalueProblem(
     mesh,
     material,
-    equation="scmoc",
+    equation=equation,
     boundary=boundary,
     inner=dt.IterationSolver.source_iteration(
       tolerance=inner_tolerance,
@@ -241,6 +246,7 @@ def summarize_moc_result(case, index, mesh, result, reference, options, elapsed)
     "polar": options["polar"],
     "azimuth": options["azimuth"],
     "spacing": options["spacing"],
+    "equation": options["equation"],
     "keff": result.keff,
     "finite": math.isfinite(result.keff),
     "elapsed": elapsed,
@@ -298,7 +304,7 @@ def run_moc_case(case, **options):
       mesh,
       result,
       options["plot_dir"],
-      "c5g7_{0}_{1}_moc".format(case, index),
+      "c5g7_{0}_{1}_{2}".format(case, index, options["equation"]),
       groups=_plot_groups(options, material),
       width=options["plot_width"],
       palette=options["plot_palette"],
@@ -335,6 +341,8 @@ def add_moc_arguments(
                       help="product quadrature type")
   parser.add_argument("--spacing", type=float, default=0.25,
                       help="maximum average track spacing")
+  parser.add_argument("--equation", choices=("scmoc", "ddmoc"), default="scmoc",
+                      help="native MOC spatial discretization")
   parser.add_argument("--inner-tolerance", type=float, default=1.0e-5)
   parser.add_argument("--outer-tolerance", type=float, default=1.0e-5)
   parser.add_argument("--eigen-tolerance", type=float, default=1.0e-4)

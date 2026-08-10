@@ -1,7 +1,6 @@
 # pyexamples/c5g7/run_core_moc.py
 #
-# Solves the C5G7 core eigenproblem with the native 2-D
-# step-characteristics MOC sweeper.
+# Solves the C5G7 core eigenproblem with the native 2-D MOC sweeper.
 
 try:
   from .moc_driver import parse_moc_args, print_summary, run_from_args, run_moc_case

@@ -1,7 +1,6 @@
 # pyexamples/c5g7/run_assembly_moc.py
 #
-# Solves a reflected C5G7 assembly eigenproblem with the native 2-D
-# step-characteristics MOC sweeper.
+# Solves a reflected C5G7 assembly eigenproblem with the native 2-D MOC sweeper.
 
 try:
   from .moc_driver import parse_moc_args, print_summary, run_from_args, run_moc_case

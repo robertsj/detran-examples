@@ -1,7 +1,7 @@
 # C5G7 Examples
 
 This folder contains 2-D C5G7 benchmark inputs and small drivers for diffusion,
-SN transport, native step-characteristics MOC, and MOC/SN comparison runs.  The
+SN transport, native MOC, and MOC/SN comparison runs.  The
 defaults favor short local checks over reference-quality benchmark production
 runs.
 
@@ -11,6 +11,7 @@ Run examples from this directory with a current pydetran build on `PYTHONPATH`:
 export PYTHONPATH=/home/robertsj/Research/detran/install/python:$PYTHONPATH
 python3 run_pin_moc.py --index 0 --pin-mesh 7 --plot-style cells
 python3 run_assembly_moc.py --index 0 --pin-mesh 7 --plot-style cells
+python3 run_assembly_moc.py --equation ddmoc --index 0 --pin-mesh 7 --no-plots
 python3 run_core_moc.py --pin-mesh 7 --plot-groups 0 --eigen-iters 300
 ```
 
@@ -18,8 +19,10 @@ The MOC drivers report `keff`, elapsed time, sweep count, and reference
 eigenvalue differences when a matching reference value is available.  They can
 write scalar-flux plots with `--plot-style cells` for compact matplotlib mesh
 cell SVGs or `--plot-style tracks` for detailed track-segment SVGs.  Use
-`--plot-groups 0,2-4`, `--plot-groups all`, `--plot-dir <path>`,
-`--plot-palette <name>`, or `--no-plots` to control plot output.
+`--equation scmoc` for step characteristics or `--equation ddmoc` for
+diamond-difference MOC.  Use `--plot-groups 0,2-4`, `--plot-groups all`,
+`--plot-dir <path>`, `--plot-palette <name>`, or `--no-plots` to control plot
+output.
 
 Generated plot folders such as `moc_plots/` and `moc_plots_mesh7_cases/` are
 local run artifacts and are ignored by git.  The timing CSVs and plot images in

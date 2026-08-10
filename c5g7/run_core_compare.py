@@ -45,6 +45,7 @@ DEFAULT_OPTIONS = {
   "eigen_iters": 8,
   "monitor_level": 0,
   "print_interval": 1,
+  "moc_equation": "scmoc",
   "sn_equation": "dd",
   "edit_map": "PINS",
   "groups": None,
@@ -223,6 +224,7 @@ def run(**options):
     mesh,
     material,
     spacing=opts["spacing"],
+    equation=opts["moc_equation"],
     **common,
   )
   sn_problem = build_sn_problem(
@@ -277,6 +279,7 @@ def run(**options):
     "azimuth": int(opts["azimuth"]),
     "quadrature": opts["quadrature"],
     "spacing": float(opts["spacing"]),
+    "moc_equation": opts["moc_equation"],
     "sn_equation": opts["sn_equation"],
     "normalization": normalization,
     "cell_scalar_unknowns": int(mesh.number_cells()) * len(groups),
@@ -340,6 +343,8 @@ def print_summary(summary):
     summary["polar"],
     summary["azimuth"],
   ))
+  print("MOC equation: {0}".format(summary["moc_equation"]))
+  print("SN equation: {0}".format(summary["sn_equation"]))
   print("normalization: {0}".format(summary["normalization"]))
   print("reference keff: {:.9f}".format(summary["reference_keff"]))
   print("moc keff: {:.9f} elapsed={:.3f}s sweeps={}".format(
@@ -408,6 +413,8 @@ def parse_args():
                       default=DEFAULT_OPTIONS["monitor_level"])
   parser.add_argument("--print-interval", type=int,
                       default=DEFAULT_OPTIONS["print_interval"])
+  parser.add_argument("--moc-equation", choices=("scmoc", "ddmoc"),
+                      default=DEFAULT_OPTIONS["moc_equation"])
   parser.add_argument("--sn-equation", choices=("dd", "sc", "sd"),
                       default=DEFAULT_OPTIONS["sn_equation"])
   parser.add_argument("--edit-map", default=DEFAULT_OPTIONS["edit_map"],
@@ -445,6 +452,7 @@ if __name__ == "__main__":
     eigen_iters=args.eigen_iters,
     monitor_level=args.monitor_level,
     print_interval=args.print_interval,
+    moc_equation=args.moc_equation,
     sn_equation=args.sn_equation,
     edit_map=args.edit_map,
     groups=_groups_from_args(args.groups),
