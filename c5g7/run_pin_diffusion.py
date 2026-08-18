@@ -4,6 +4,7 @@
 #
 
 import numpy as np
+import sys
 import time
 from detran import *
 try:
@@ -35,7 +36,16 @@ def run():
     mesh=mesh,
     materials=mat,
     boundary="reflect",
-    solver=EigenSolver.arnoldi(max_iters=1000, tolerance=1e-9),
+    solver=EigenSolver.power_iteration(
+      max_iters=1000,
+      tolerance=1e-9,
+      inner=LinearSolver.gmres(
+        atol=1e-8,
+        rtol=1e-8,
+        max_iters=5000,
+        restart=30,
+      ),
+    ),
   )
   result = problem.solve()
   print("elapsed = ", time.time() - start)
@@ -55,4 +65,5 @@ def run():
 
 
 if __name__ == "__main__":
+  Manager.initialize(sys.argv)
   run()

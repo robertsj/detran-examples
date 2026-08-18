@@ -12,22 +12,38 @@ import detran as dt
 try:
   from .assemblies_c5g7 import get_assemblies
   from .core_c5g7 import get_core
-  from .material_c5g7 import get_materials
+  from .csg_c5g7 import ASSEMBLY_PIN_MAPS, CORE_ASSEMBLY_MAP
+  from .material_c5g7 import get_density_corrected_materials, get_materials
   from .pins_c5g7 import get_pins
   from .plot_utils import write_moc_flux_svgs
   from .reference import assembly_eigenvalues, eigenvalue, pin_eigenvalues
+  from .sn_mesh import (
+    ASSEMBLY_DIMENSION,
+    CORE_DIMENSION,
+    build_center_sampled_problem_mesh,
+    core_pin_map,
+  )
 except ImportError:
   from assemblies_c5g7 import get_assemblies
   from core_c5g7 import get_core
-  from material_c5g7 import get_materials
+  from csg_c5g7 import ASSEMBLY_PIN_MAPS, CORE_ASSEMBLY_MAP
+  from material_c5g7 import get_density_corrected_materials, get_materials
   from pins_c5g7 import get_pins
   from plot_utils import write_moc_flux_svgs
   from reference import assembly_eigenvalues, eigenvalue, pin_eigenvalues
+  from sn_mesh import (
+    ASSEMBLY_DIMENSION,
+    CORE_DIMENSION,
+    build_center_sampled_problem_mesh,
+    core_pin_map,
+  )
 
 
 MOC_OPTION_NAMES = (
   "index",
+  "mesh_variant",
   "pin_mesh",
+  "density_correction",
   "polar",
   "azimuth",
   "quadrature",
@@ -66,7 +82,9 @@ MOC_PROBLEM_OPTION_NAMES = (
 
 DEFAULT_MOC_OPTIONS = {
   "index": 0,
+  "mesh_variant": "legacy",
   "pin_mesh": 7,
+  "density_correction": True,
   "polar": 1,
   "azimuth": 4,
   "quadrature": "u-u",
@@ -149,26 +167,111 @@ def parse_plot_groups(spec):
   return tuple(dict.fromkeys(groups))
 
 
-def get_moc_case(case, index=0, pin_mesh=7):
-  """Return the mesh and reference data for a C5G7 MOC case."""
-  if case == "pin":
-    pins = get_pins(pin_mesh, True)
-    if index < 0 or index >= len(pins):
-      raise ValueError("pin index must be between 0 and 6")
-    return pins[index].mesh(), pin_eigenvalues().get(index)
+def get_moc_case(case, index=0, pin_mesh=7, mesh_variant="legacy"):
+  """Return mesh, mesh metadata, and reference data for a C5G7 MOC case."""
+  if mesh_variant == "legacy":
+    if case == "pin":
+      pins = get_pins(pin_mesh, True)
+      if index < 0 or index >= len(pins):
+        raise ValueError("pin index must be between 0 and 6")
+      return pins[index].mesh(), {
+        "name": "legacy_pin_cell_meshify",
+        "pin_mesh": pin_mesh,
+        "volume_preserving": bool(pin_mesh >= 7),
+        "source": "PinCell.meshify(number, True)",
+      }, pin_eigenvalues().get(index)
 
-  if case == "assembly":
-    assemblies = get_assemblies(pin_mesh, True)
-    if index < 0 or index >= len(assemblies):
-      raise ValueError("assembly index must be between 0 and 2")
-    return assemblies[index].mesh(), assembly_eigenvalues().get(index)
+    if case == "assembly":
+      assemblies = get_assemblies(pin_mesh, True)
+      if index < 0 or index >= len(assemblies):
+        raise ValueError("assembly index must be between 0 and 2")
+      return assemblies[index].mesh(), {
+        "name": "legacy_pin_cell_meshify",
+        "pin_mesh": pin_mesh,
+        "volume_preserving": bool(pin_mesh >= 7),
+        "source": "PinCell.meshify(number, True)",
+      }, assembly_eigenvalues().get(index)
 
-  if case == "core":
-    if index not in (None, 0):
-      raise ValueError("core index must be 0")
-    return get_core(pin_mesh, True).mesh(), ("C5G7 core", eigenvalue())
+    if case == "core":
+      if index not in (None, 0):
+        raise ValueError("core index must be 0")
+      return get_core(pin_mesh, True).mesh(), {
+        "name": "legacy_pin_cell_meshify",
+        "pin_mesh": pin_mesh,
+        "volume_preserving": bool(pin_mesh >= 7),
+        "source": "PinCell.meshify(number, True)",
+      }, ("C5G7 core", eigenvalue())
+
+  if mesh_variant == "centered":
+    if case == "pin":
+      if index < 0 or index > 6:
+        raise ValueError("pin index must be between 0 and 6")
+      mesh, recipe = build_center_sampled_problem_mesh(
+        dt,
+        [index],
+        pins_per_side=1,
+        number=pin_mesh,
+      )
+      return mesh, recipe.to_dict(), pin_eigenvalues().get(index)
+
+    if case == "assembly":
+      if index < 0 or index >= len(ASSEMBLY_PIN_MAPS):
+        raise ValueError("assembly index must be between 0 and 2")
+      mesh, recipe = build_center_sampled_problem_mesh(
+        dt,
+        ASSEMBLY_PIN_MAPS[index],
+        pins_per_side=ASSEMBLY_DIMENSION,
+        number=pin_mesh,
+      )
+      return mesh, recipe.to_dict(), assembly_eigenvalues().get(index)
+
+    if case == "core":
+      if index not in (None, 0):
+        raise ValueError("core index must be 0")
+      pin_map = core_pin_map(
+        CORE_ASSEMBLY_MAP,
+        ASSEMBLY_PIN_MAPS,
+        assemblies_per_side=CORE_DIMENSION,
+        pins_per_assembly_side=ASSEMBLY_DIMENSION,
+      )
+      mesh, recipe = build_center_sampled_problem_mesh(
+        dt,
+        pin_map,
+        pins_per_side=CORE_DIMENSION * ASSEMBLY_DIMENSION,
+        number=pin_mesh,
+      )
+      return mesh, recipe.to_dict(), ("C5G7 core", eigenvalue())
+
+  if mesh_variant not in ("legacy", "centered"):
+    raise ValueError("mesh_variant must be legacy or centered")
 
   raise ValueError("case must be 'pin', 'assembly', or 'core'")
+
+
+def material_for_mesh_recipe(recipe, *, apply_density_correction=True):
+  corrections = recipe.get("density_correction_by_material") or {}
+  if not corrections or not apply_density_correction:
+    return get_materials(), {
+      "name": "C5G7",
+      "density_corrected": False,
+      "density_correction_applied": False,
+      "density_correction_available": bool(corrections),
+      "conservative": True,
+    }
+  finite = {
+    int(material): float(factor)
+    for material, factor in corrections.items()
+    if factor is not None
+  }
+  return get_density_corrected_materials(finite), {
+    "name": "C5G7 density-corrected",
+    "density_corrected": True,
+    "density_correction_applied": True,
+    "density_correction_available": True,
+    "correction_scope": recipe.get("correction_scope"),
+    "conservative": bool(recipe.get("conservative_density_correction")),
+    "density_correction_by_material": corrections,
+  }
 
 
 def get_moc_boundary(case):
@@ -235,13 +338,27 @@ def build_moc_problem(
   )
 
 
-def summarize_moc_result(case, index, mesh, result, reference, options, elapsed):
+def summarize_moc_result(
+  case,
+  index,
+  mesh,
+  result,
+  reference,
+  options,
+  elapsed,
+  mesh_recipe=None,
+  material_model=None,
+):
   summary = {
     "case": case,
     "index": index,
     "cells": mesh.number_cells(),
     "width_x": mesh.total_width_x(),
     "width_y": mesh.total_width_y(),
+    "mesh_variant": options["mesh_variant"],
+    "density_correction": options.get("density_correction", True),
+    "pin_mesh_recipe": mesh_recipe or {},
+    "material_model": material_model or {},
     "boundary": options["boundary"],
     "polar": options["polar"],
     "azimuth": options["azimuth"],
@@ -283,12 +400,16 @@ def run_moc_case(case, **options):
   defaults.update(CASE_MOC_OPTIONS.get(case, {}))
   defaults["boundary"] = get_moc_boundary(case)
   options = dict(defaults, **options)
-  material = get_materials()
   index = options["index"]
-  mesh, reference = get_moc_case(
+  mesh, mesh_recipe, reference = get_moc_case(
     case,
     index=index,
     pin_mesh=options["pin_mesh"],
+    mesh_variant=options["mesh_variant"],
+  )
+  material, material_model = material_for_mesh_recipe(
+    mesh_recipe,
+    apply_density_correction=options["density_correction"],
   )
   problem_options = {name: options[name] for name in MOC_PROBLEM_OPTION_NAMES}
   problem_options["boundary"] = options["boundary"]
@@ -298,7 +419,17 @@ def run_moc_case(case, **options):
   result = problem.solve()
   elapsed = time.time() - start
 
-  summary = summarize_moc_result(case, index, mesh, result, reference, options, elapsed)
+  summary = summarize_moc_result(
+    case,
+    index,
+    mesh,
+    result,
+    reference,
+    options,
+    elapsed,
+    mesh_recipe,
+    material_model,
+  )
   if options["plot_dir"]:
     summary["plot_files"] = write_moc_flux_svgs(
       mesh,
@@ -331,8 +462,17 @@ def add_moc_arguments(
                         default=default_case)
   parser.add_argument("--index", type=int, default=default_index,
                       help="pin or assembly index; core requires 0")
+  parser.add_argument("--mesh-variant", choices=("legacy", "centered"),
+                      default="legacy",
+                      help="pin mesh material assignment/correction strategy")
   parser.add_argument("--pin-mesh", type=int, default=7,
                       help="pin-cell mesh subdivisions per dimension")
+  parser.add_argument("--density-correction", dest="density_correction",
+                      action="store_true", default=None,
+                      help="apply centered-mesh density corrections when available")
+  parser.add_argument("--no-density-correction", dest="density_correction",
+                      action="store_false",
+                      help="use center-sampled materials without density correction")
   parser.add_argument("--polar", type=int, default=1,
                       help="product polar angles per octant")
   parser.add_argument("--azimuth", type=int, default=4,

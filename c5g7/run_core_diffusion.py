@@ -6,6 +6,7 @@
 # of order 18, the reference keff is 1.186572165.
 
 import numpy as np
+import sys
 import time
 from detran import *
 try:
@@ -42,7 +43,16 @@ def run():
     mesh=mesh,
     materials=mat,
     boundary=("reflect", "vacuum", "reflect", "vacuum"),
-    solver=EigenSolver.arnoldi(max_iters=1000, tolerance=1e-6),
+    solver=EigenSolver.power_iteration(
+      max_iters=1000,
+      tolerance=1e-6,
+      inner=LinearSolver.gmres(
+        atol=1e-8,
+        rtol=1e-8,
+        max_iters=5000,
+        restart=30,
+      ),
+    ),
   )
   t = time.time()
   result = problem.solve()
@@ -60,4 +70,5 @@ def run():
 
 
 if __name__ == "__main__":
+  Manager.initialize(sys.argv)
   run()

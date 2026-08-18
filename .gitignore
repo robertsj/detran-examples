@@ -20,7 +20,15 @@
 
 # Generated C5G7 example output
 c5g7/moc_plots*/
+c5g7/csg_results/
+c5g7/results/
 c5g7/*.npz
+c5g7/c5g7_csg_benchmark_report.aux
+c5g7/c5g7_csg_benchmark_report.fdb_latexmk
+c5g7/c5g7_csg_benchmark_report.fls
+c5g7/c5g7_csg_benchmark_report.log
+c5g7/c5g7_csg_benchmark_report.out
+c5g7/c5g7_csg_benchmark_report.pdf
 
 # Generated CSG example output
 csg/notebook_outputs/

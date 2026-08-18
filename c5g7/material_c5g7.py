@@ -500,3 +500,32 @@ def get_materials() :
   mat.finalize()
 
   return mat
+
+
+def apply_density_corrections(base, density_corrections, name="C5G7 density-corrected"):
+  """Clone a C5G7 material table with per-material density corrections.
+
+  The correction factors are macroscopic density multipliers.  Cross sections
+  scale with density; dimensionless emission data do not.
+  """
+
+  mat = Material(base.number_materials(), base.number_groups(), name)
+  for m in range(int(base.number_materials())):
+    factor = float(density_corrections.get(m, 1.0))
+    for g in range(int(base.number_groups())):
+      mat.set_sigma_t(m, g, factor * base.sigma_t(m, g))
+      mat.set_sigma_f(m, g, factor * base.sigma_f(m, g))
+      mat.set_nu(m, g, base.nu(m, g))
+      mat.set_chi(m, g, base.chi(m, g))
+      for gp in range(int(base.number_groups())):
+        mat.set_sigma_s(m, g, gp, factor * base.sigma_s(m, g, gp))
+  mat.compute_diff_coef()
+  mat.compute_sigma_a()
+  mat.finalize()
+  return mat
+
+
+def get_density_corrected_materials(density_corrections):
+  """Return the C5G7 material table with problem-specific density factors."""
+
+  return apply_density_corrections(get_materials(), density_corrections)

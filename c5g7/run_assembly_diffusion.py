@@ -8,6 +8,7 @@
 #   MOX -- 1.184571821
 
 import numpy as np
+import sys
 import time
 from detran import *
 try:
@@ -42,7 +43,7 @@ def run():
     mesh=mesh,
     materials=mat,
     boundary="reflect",
-    solver=EigenSolver.arnoldi(
+    solver=EigenSolver.power_iteration(
       max_iters=1000,
       inner=LinearSolver.gmres(
         atol=1e-8,
@@ -68,4 +69,5 @@ def run():
 
 
 if __name__ == "__main__":
+  Manager.initialize(sys.argv)
   run()
